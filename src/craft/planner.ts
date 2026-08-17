@@ -107,7 +107,7 @@ export function planCraft(
     if (raw.has(name)) return;
     if (visitState.get(name) === 'open') {
       raw.add(name);
-      warnings.push(`${name} ingår i sitt eget recept, expanderar inte vidare.`);
+      warnings.push(`${name} lists itself as an ingredient, so it is not expanded further.`);
       return;
     }
     if (visitState.get(name) === 'done') return;
@@ -115,7 +115,7 @@ export function planCraft(
     if (!recipe) return;
     if (depth >= maxDepth) {
       raw.add(name);
-      warnings.push(`Slutade expandera ${name} vid djup ${maxDepth}.`);
+      warnings.push(`Stopped expanding ${name} at depth ${maxDepth}.`);
       return;
     }
     visitState.set(name, 'open');
@@ -160,7 +160,7 @@ export function planCraft(
   for (const name of seen) {
     if (!order.includes(name)) {
       order.push(name);
-      warnings.push(`${name} kunde inte ordnas i craft-ordningen, receptkedjan går i cirkel.`);
+      warnings.push(`${name} could not be placed in the craft order: its recipe chain loops.`);
     }
   }
 

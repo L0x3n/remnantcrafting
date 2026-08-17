@@ -45,7 +45,7 @@ export function startRouter(routes: Route[], outlet: HTMLElement, notFound: () =
         const message = error instanceof Error ? error.message : String(error);
         const box = document.createElement('div');
         box.className = 'panel error';
-        box.textContent = `Något gick fel: ${message}`;
+        box.textContent = `Something went wrong: ${message}`;
         outlet.replaceChildren(box);
       } finally {
         outlet.removeAttribute('aria-busy');

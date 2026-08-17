@@ -1,10 +1,10 @@
-# Källor och licens
+# Sources and licence
 
-## Speldata
+## Game data
 
-All speldata på den här sidan är importerad från **[Soul's Remnant Wiki på wiki.gg](https://soulsremnant.wiki.gg/)**, som ägs och skrivs av dess community.
+All game data on this site is imported from the **[Soul's Remnant Wiki on wiki.gg](https://soulsremnant.wiki.gg/)**, which is owned and written by its community.
 
-Importerade sidor:
+Imported pages:
 
 - `Module:Data/Equipment`
 - `Module:Data/Items`
@@ -13,21 +13,21 @@ Importerade sidor:
 - `Module:Data/Locations`
 - `Module:Data/Skills`
 - `Template:ArmorCards`
-- `Crafting`, `Gathering`, `Cooking` (beskrivande text, som underlag)
+- `Crafting`, `Gathering`, `Cooking` (descriptive text, used as background)
 
-Innehållet är licensierat under **[Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0)**. Den här sidan använder det under samma licens och med den attributionen, vilket också betyder att det som visas här får återanvändas under CC BY-SA 4.0.
+That content is licensed under **[Creative Commons Attribution-ShareAlike 4.0](https://creativecommons.org/licenses/by-sa/4.0)**. This site uses it under the same licence and with that attribution, which also means everything shown here may be reused under CC BY-SA 4.0.
 
-## Bilder
+## Images
 
-Sprites i `public/img/` är speglade från samma wiki och avbildar tillgångar ur spelet Soul's Remnant. De visas i informationssyfte om spelet. Upphovsrätten till själva spelmaterialet tillhör spelets utvecklare. Vill utvecklaren att de tas bort räcker det att ta bort mappen och köra sidan utan den: gränssnittet fungerar utan bilder.
+Sprites in `public/img/` are mirrored from the same wiki and depict assets from the game Soul's Remnant. They are shown for the purpose of documenting the game. Copyright in the game material itself belongs to the game's developers. If the developers would like them removed, deleting the folder is enough: the interface works without images.
 
-## Vad som INTE kommer från wikin
+## What does NOT come from the wiki
 
-- Hela den här sidans kod
-- Materialexpansionen och craft-ordningen (`src/craft/planner.ts`)
-- Simuleringsmodellen av crafting-minispelet (`src/craft/engine.ts`, `src/craft/strategy.ts`)
-- De antagna dragchanserna, Mystery Strike-spannet, reroll-fördelningen och Echo Trade-tolkningen, som är egna modellval och märkta som antaganden i gränssnittet
+- All of this site's code
+- The material expansion and craft ordering (`src/craft/planner.ts`)
+- The simulation model of the crafting minigame (`src/craft/engine.ts`, `src/craft/strategy.ts`)
+- The assumed draw chances, the Mystery Strike range, the reroll distribution and the Echo Trade reading, which are modelling choices of our own and are flagged as assumptions in the interface
 
-## Ingen anknytning
+## No affiliation
 
-Sidan är ett fanprojekt. Den är inte knuten till, godkänd av eller sponsrad av Soul's Remnants utvecklare eller av wiki.gg.
+This is a fan project. It is not affiliated with, endorsed by or sponsored by the developers of Soul's Remnant or by wiki.gg.

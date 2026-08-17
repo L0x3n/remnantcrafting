@@ -192,14 +192,14 @@ export function applyCard(state: ItemState, card: DrawnCard, rng: Rng, echoPool:
   switch (def.effect) {
     case 'gapPercentAll': {
       for (const each of next.lines) each.value = closeGap(each, amount);
-      next.log.push(`${label}: stänger ${amount}% av gapet på varje rad`);
+      next.log.push(`${label}: closes ${amount}% of the gap on every line`);
       break;
     }
     case 'gapPercentOne': {
       if (!line) break;
       if (def.consumesEcho) {
         if (next.echoes.length < def.consumesEcho) {
-          next.log.push(`${label}: hoppades över, ingen echo att offra`);
+          next.log.push(`${label}: skipped, no echo to sacrifice`);
           break;
         }
         next.echoes.splice(0, def.consumesEcho);
@@ -217,32 +217,32 @@ export function applyCard(state: ItemState, card: DrawnCard, rng: Rng, echoPool:
     }
     case 'echoLevel': {
       if (!next.echoes.length) {
-        next.log.push(`${label}: hoppades över, ingen echo att höja`);
+        next.log.push(`${label}: skipped, no echo to enhance`);
         break;
       }
       const echo = next.echoes[Math.floor(rng() * next.echoes.length)];
       echo.level += amount;
-      next.log.push(`${label}: ${echo.name} → nivå ${echo.level}`);
+      next.log.push(`${label}: ${echo.name} → level ${echo.level}`);
       break;
     }
     case 'maxOne': {
       if (!line) break;
       line.value = line.max;
-      next.log.push(`${label}: ${line.name} maxad`);
+      next.log.push(`${label}: ${line.name} maxed`);
       break;
     }
     case 'maxAll': {
       for (const each of next.lines) each.value = each.max;
-      next.log.push(`${label}: varje rad maxad`);
+      next.log.push(`${label}: every line maxed`);
       break;
     }
     case 'gamble': {
       if (rng() < (def.destroyChance ?? 0.5)) {
         next.destroyed = true;
-        next.log.push(`${label}: föremålet förstördes`);
+        next.log.push(`${label}: the item was destroyed`);
       } else if (line) {
         line.value = line.max;
-        next.log.push(`${label}: ${line.name} maxad`);
+        next.log.push(`${label}: ${line.name} maxed`);
       }
       break;
     }
@@ -251,7 +251,7 @@ export function applyCard(state: ItemState, card: DrawnCard, rng: Rng, echoPool:
       for (const each of targets) {
         each.value = roundUpTo(each.min + rng() * (each.max - each.min), each.step);
       }
-      next.log.push(`${label}: slog om ${def.target === 'all' ? 'varje rad' : (line?.name ?? '-')}`);
+      next.log.push(`${label}: rerolled ${def.target === 'all' ? 'every line' : (line?.name ?? '-')}`);
       break;
     }
     case 'addEcho': {
@@ -272,17 +272,17 @@ export function applyCard(state: ItemState, card: DrawnCard, rng: Rng, echoPool:
         if (next.echoes.length >= next.echoSlots) break;
         next.echoes.push({ name: pick(echoPool, rng), level: 1 });
       }
-      next.log.push(`${label}: -${amount}% på varje rad, +2 echoes`);
+      next.log.push(`${label}: -${amount}% on every line, +2 echoes`);
       break;
     }
     case 'extraTurns': {
       next.turns += amount;
-      next.log.push(`${label}: +${amount} turer`);
+      next.log.push(`${label}: +${amount} turns`);
       break;
     }
     case 'scrap': {
       next.scrapped = true;
-      next.log.push(`${label}: craften avbröts, ${amount}% av materialet tillbaka`);
+      next.log.push(`${label}: craft abandoned, ${amount}% of materials refunded`);
       break;
     }
   }
@@ -416,7 +416,8 @@ export const atLeastOnce = (p: number, attempts: number): number =>
 /** Attempts needed before `confidence` of players have had at least one success. */
 export function attemptsFor(p: number, confidence: number): number {
   if (p <= 0 || confidence >= 1) return Infinity;
-  return Math.ceil(Math.log(1 - confidence) / Math.log(1 - p));
+  if (p >= 1) return 1;
+  return Math.max(1, Math.ceil(Math.log(1 - confidence) / Math.log(1 - p)));
 }
 
 export function simulate(initial: ItemState, config: SimConfig, runs: number, seed: number): SimSummary {

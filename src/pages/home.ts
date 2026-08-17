@@ -4,23 +4,23 @@ import { h, section } from '../ui.ts';
 const TILES = [
   {
     href: '#/planner',
-    title: 'Materialplanerare',
-    body: 'Välj vad du vill crafta. Får hela materialträdet nedbrutet till råmaterial, i rätt craft-ordning, med profession-nivåerna som krävs och var varje material farmas.',
+    title: 'Material planner',
+    body: 'Pick what you want to craft. It breaks the whole thing down to raw materials, in the order you have to craft them, with the profession levels required and where each material is farmed.',
   },
   {
     href: '#/simulator',
-    title: 'Craft-simulator',
-    body: 'Kör crafting-minispelet några tusen gånger på ditt item. Se fördelningen, jämför spelstilar och räkna ut vad extra turer och rerolls faktiskt är värda.',
+    title: 'Craft simulator',
+    body: 'Runs the crafting minigame a few thousand times on your item. See the spread, compare playstyles, and work out what extra turns and rerolls are actually worth.',
   },
   {
     href: '#/cards',
-    title: 'Kortlistan',
-    body: 'Alla 21 kort med den matematik de utför, plus ett tydligt exempel per sällsynthet. Antaganden är utmärkta som antaganden.',
+    title: 'Card list',
+    body: 'All 21 cards with the maths they perform, plus a worked example per rarity. Assumptions are labelled as assumptions.',
   },
   {
     href: '#/recipes',
-    title: 'Recept',
-    body: 'Alla dokumenterade recept, filtrerbara på profession, craftnivå och ingående material.',
+    title: 'Recipes',
+    body: 'Every documented recipe, filterable by profession, craft level and ingredient.',
   },
 ];
 
@@ -38,18 +38,18 @@ export async function render(): Promise<Node> {
       h(
         'p',
         { class: 'lede' },
-        "En databas för Soul's Remnant byggd runt en sak den nuvarande wikin inte gör: att räkna. Recepten och stat-spannen finns redan, men ingen bryter ner dem åt dig och ingen visar vad ett kortval faktiskt är värt.",
+        "A Soul's Remnant database built around the one thing the current wiki does not do: arithmetic. The recipes and the stat ranges are already written down, but nothing breaks them down for you and nothing tells you what a card choice is worth.",
       ),
       h('p', { class: 'wip-notice' }, 'This Wiki is a continual work-in-progress, and is maintained by the community.'),
       h(
         'div',
         { class: 'row', style: { marginTop: '12px' } },
-        h('span', { class: 'chip ember' }, `${counts.recipes} recept`),
-        h('span', { class: 'chip' }, `${counts.entities} föremål`),
-        h('span', { class: 'chip' }, `${counts.monsters} monster`),
-        h('span', { class: 'chip' }, `${counts.locations} kartor`),
+        h('span', { class: 'chip ember' }, `${counts.recipes} recipes`),
+        h('span', { class: 'chip' }, `${counts.entities} items`),
+        h('span', { class: 'chip' }, `${counts.monsters} monsters`),
+        h('span', { class: 'chip' }, `${counts.locations} maps`),
         h('span', { class: 'chip' }, `${counts.skills} skills`),
-        h('span', { class: 'chip' }, `${counts.cards} kort`),
+        h('span', { class: 'chip' }, `${counts.cards} cards`),
       ),
     ),
     h(
@@ -65,24 +65,24 @@ export async function render(): Promise<Node> {
       ),
     ),
     section(
-      'Så fungerar crafting, kort',
+      'How crafting works, briefly',
       h(
         'p',
         null,
-        'Du får tre slumpade kort per tur och väljer ett, tills turerna tar slut. Procentkorten stänger en andel av gapet upp till radens maxvärde, inte en andel av värdet du redan har. En rad som står på 2,0 av max 10,0 hoppar till 6,0 med ett +50%-kort, medan samma rad på 9,0 bara når 9,8 med ett +75%-kort.',
+        'You get three random cards per turn and pick one, until the turns run out. Percentage cards close a share of the gap up to the line maximum, not a share of the value you already have. A line sitting at 2.0 out of a max 10.0 jumps to 6.0 on a +50% card, while the same line at 9.0 only reaches 9.8 on a +75% card.',
       ),
       h(
         'p',
         null,
-        'Värden avrundas uppåt, så ett perfekt item går att nå, men bara med tillräckligt många turer. Fler turer och rerolls får du av profession-nivå, echoes på utrustning och mat från Cooking.',
+        'Values round up, so a perfect item is reachable, but only with enough turns. More turns and rerolls come from profession level, echoes on gear, and food from Cooking.',
       ),
-      h('p', null, h('a', { href: '#/simulator' }, 'Räkna på det i simulatorn'), ' eller ', h('a', { href: '#/cards' }, 'läs kortlistan'), '.'),
+      h('p', null, h('a', { href: '#/simulator' }, 'Run the numbers in the simulator'), ' or ', h('a', { href: '#/cards' }, 'read the card list'), '.'),
     ),
     h(
       'footer',
       { class: 'site' },
-      'made by RapidX. Speldata kommer från soulsremnant.wiki.gg och används under CC BY-SA 4.0. ',
-      h('a', { href: '#/about' }, 'Källor och datastatus'),
+      'made by RapidX. Game data comes from soulsremnant.wiki.gg and is used under CC BY-SA 4.0. ',
+      h('a', { href: '#/about' }, 'Sources and data status'),
       '.',
     ),
   );

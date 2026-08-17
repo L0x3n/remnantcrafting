@@ -111,9 +111,9 @@ export function select<T extends string>(options: { value: T; label: string }[],
   return el;
 }
 
-/** Percent with one decimal, e.g. 0.8234 -> "82,3%" */
-export const pct = (value: number, digits = 1) => `${(value * 100).toFixed(digits).replace('.', ',')}%`;
-export const num = (value: number, digits = 1) => value.toFixed(digits).replace('.', ',');
+/** Percent with one decimal, e.g. 0.8234 -> "82.3%" */
+export const pct = (value: number, digits = 1) => `${(value * 100).toFixed(digits)}%`;
+export const num = (value: number, digits = 1) => value.toFixed(digits);
 
 export function bar(fraction: number, label?: string) {
   return h(

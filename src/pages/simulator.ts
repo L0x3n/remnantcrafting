@@ -1,5 +1,5 @@
-// Craft-simulator: kör crafting-minispelet tusentals gånger och visar vad en plan
-// faktiskt är värd, istället för vad en tur körning råkade ge.
+// Craft simulator: runs the crafting minigame thousands of times and shows what a
+// plan is actually worth, instead of what one lucky run happened to produce.
 
 import { db, type Database } from '../db.ts';
 import { parseStatLines, toStatLine } from '../craft/statlines.ts';
@@ -96,7 +96,7 @@ function itemPicker(data: Database, state: State, rerender: () => void): HTMLEle
     .map((entity) => entity.name)
     .sort();
 
-  const input = h('input', { list: 'sim-items', placeholder: 'Ladda stats från ett föremål', value: state.itemName, style: { minWidth: '240px' } });
+  const input = h('input', { list: 'sim-items', placeholder: 'Load stats from an item', value: state.itemName, style: { minWidth: '240px' } });
 
   const apply = () => {
     const entity = data.entities.find((each) => each.name.toLowerCase() === input.value.trim().toLowerCase());
@@ -114,8 +114,8 @@ function itemPicker(data: Database, state: State, rerender: () => void): HTMLEle
   return h(
     'div',
     { class: 'row' },
-    h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Föremål'), input),
-    h('button', { onclick: apply }, 'Ladda stats'),
+    h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Item'), input),
+    h('button', { onclick: apply }, 'Load stats'),
     h('datalist', { id: 'sim-items' }, ...options.map((name) => h('option', { value: name }))),
   );
 }
@@ -140,11 +140,11 @@ function lineEditor(state: State, rerender: () => void): HTMLElement {
     h(
       'div',
       { class: 'stat-line', style: { color: 'var(--ink-faint)', fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em' } },
-      h('span', null, 'Stat-rad'),
+      h('span', null, 'Stat line'),
       h('span', null, 'Min'),
       h('span', null, 'Max'),
-      h('span', null, 'Vikt'),
-      h('span', null, 'Spann'),
+      h('span', null, 'Weight'),
+      h('span', null, 'Range'),
       h('span', null, ''),
     ),
     ...state.lines.map((line) =>
@@ -166,7 +166,7 @@ function lineEditor(state: State, rerender: () => void): HTMLElement {
           'button',
           {
             class: 'tiny ghost',
-            title: 'Ta bort raden',
+            title: 'Remove this line',
             onclick: () => {
               state.lines = state.lines.filter((each) => each !== line);
               if (!state.lines.length) state.lines = DEFAULT_LINES.map((each) => ({ ...each }));
@@ -184,12 +184,12 @@ function lineEditor(state: State, rerender: () => void): HTMLElement {
         class: 'tiny',
         style: { marginTop: '8px' },
         onclick: () => {
-          state.lines.push({ name: 'Ny stat', min: 1, max: 10, value: 1, step: 1, weight: 1 });
+          state.lines.push({ name: 'New stat', min: 1, max: 10, value: 1, step: 1, weight: 1 });
           save(state);
           rerender();
         },
       },
-      '+ Lägg till rad',
+      '+ Add a line',
     ),
   );
 }
@@ -218,14 +218,14 @@ function knobs(state: State, rerender: () => void): HTMLElement {
   return h(
     'div',
     null,
-    h('div', { class: 'row' }, knob('Turer', 'turns', 1, 60), knob('Rerolls', 'rerolls', 0, 40), knob('Echo-slots', 'echoSlots', 0, 8)),
+    h('div', { class: 'row' }, knob('Turns', 'turns', 1, 60), knob('Rerolls', 'rerolls', 0, 40), knob('Echo slots', 'echoSlots', 0, 8)),
     h(
       'div',
       { class: 'row', style: { marginTop: '10px' } },
       h(
         'div',
         { class: 'field' },
-        h('span', { class: 'field-label' }, 'Spelstil'),
+        h('span', { class: 'field-label' }, 'Playstyle'),
         h(
           'select',
           {
@@ -238,7 +238,7 @@ function knobs(state: State, rerender: () => void): HTMLElement {
           ...STRATEGIES.map((each) => h('option', { value: each.id, selected: each.id === state.strategyId }, each.name)),
         ),
       ),
-      knob('Körningar', 'runs', 100, 20000),
+      knob('Runs', 'runs', 100, 20000),
       knob('Seed', 'seed', 1, 999999),
     ),
     h('p', { class: 'note' }, strategy.description),
@@ -282,13 +282,13 @@ function weightEditor(state: State, rerender: () => void): HTMLElement {
             rerender();
           },
         },
-        'Återställ',
+        'Reset',
       ),
     ),
     h(
       'p',
       { class: 'note assumed' },
-      'Spelet publicerar inte hur ofta varje sällsynthet dyker upp. Siffrorna ovan är en antagen fördelning, inte uppmätt data. Ändra dem om du har egna mätningar, så räknas allt om.',
+      'The game does not publish how often each rarity shows up. The numbers above are an assumed distribution, not measured data. Change them if you have your own measurements and everything recalculates.',
     ),
   );
 }
@@ -331,14 +331,14 @@ function histogram(summary: SimSummary): HTMLElement {
       ...summary.histogram.map((row) =>
         h('div', {
           style: { height: `${(row.count / peak) * 100}%` },
-          title: `${pct(row.bucket, 0)} till ${pct(row.bucket + 0.05, 0)}: ${row.count} körningar`,
+          title: `${pct(row.bucket, 0)} to ${pct(row.bucket + 0.05, 0)}: ${row.count} runs`,
         }),
       ),
     ),
     h(
       'div',
       { class: 'spread muted', style: { fontSize: '0.75rem', marginTop: '4px' } },
-      h('span', null, '0% av maxstats'),
+      h('span', null, '0% of max stats'),
       h('span', null, '100%'),
     ),
   );
@@ -346,10 +346,10 @@ function histogram(summary: SimSummary): HTMLElement {
 
 /** "0,84%" plus the frequency people actually feel, "1 av 119". */
 function odds(p: number, digits = 2): string {
-  if (p <= 0) return 'aldrig';
-  if (p >= 1) return 'alltid';
+  if (p <= 0) return 'never';
+  if (p >= 1) return 'always';
   // The "1 in N" form only helps for rare things; at 95% it just reads as "1 in 1".
-  return p < 0.25 ? `${pct(p, digits)} · 1 av ${Math.round(1 / p)}` : pct(p, digits);
+  return p < 0.25 ? `${pct(p, digits)} · 1 in ${Math.round(1 / p)}` : pct(p, digits);
 }
 
 /** How many crafts you need, and what a given number of crafts buys you. */
@@ -385,32 +385,32 @@ function confidencePanel(state: State, summary: SimSummary, rerender: () => void
   });
 
   return section(
-    'Hur många måste du crafta?',
+    'How many do you have to craft?',
     h(
       'div',
       { class: 'row center' },
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Bra nog vid'), targetInput, h('small', null, `${pct(state.target, 0)} av maxstats`)),
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Du craftar'), attemptInput, h('small', null, 'st')),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Good enough at'), targetInput, h('small', null, `${pct(state.target, 0)} of max stats`)),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'You craft'), attemptInput, h('small', null, 'items')),
     ),
     h(
       'p',
       { style: { fontSize: '1.15rem', marginTop: '10px' } },
       hit > 0
         ? frag(
-            h('b', { style: { color: 'var(--ember)' } }, `${Math.round(hit * 100)} av 100 crafts`),
-            ` når minst ${pct(state.target, 0)}. Craftar du ${planned} st är chansen att minst en lyckas `,
+            h('b', { style: { color: 'var(--ember)' } }, `${Math.round(hit * 100)} out of 100 crafts`),
+            ` reach at least ${pct(state.target, 0)}. Craft ${planned} of them and the chance that at least one lands is `,
             h('b', { style: { color: 'var(--ember)' } }, pct(confidence, 1)),
             '.',
           )
-        : `Ingen av ${summary.runs} körningar nådde ${pct(state.target, 0)}. Sänk kravet eller skaffa fler turer.`,
+        : `None of the ${summary.runs} runs reached ${pct(state.target, 0)}. Lower the bar or get more turns.`,
     ),
     hit > 0
       ? h(
           'p',
           { class: 'muted' },
-          `För att lyckas 9 gånger av 10 behöver du ${attemptsFor(hit, 0.9)} ${attemptsFor(hit, 0.9) === 1 ? 'craft' : 'crafts'}. `,
-          'Formeln är 1 - (1 - p)^n, där p är chansen per craft och n är antalet crafts. ',
-          'Notera att standardvärdet ovan (ett genomsnitt) bara ger dig runt 63% chans, inte 100%.',
+          `To succeed 9 times out of 10 you need ${attemptsFor(hit, 0.9)} ${attemptsFor(hit, 0.9) === 1 ? 'craft' : 'crafts'}. `,
+          'The formula is 1 - (1 - p)^n, where p is the chance per craft and n is the number of crafts. ',
+          'Note that the default above, the average, only gets you to around 63%, not 100%.',
         )
       : null,
   );
@@ -419,14 +419,14 @@ function confidencePanel(state: State, summary: SimSummary, rerender: () => void
 /** Three real items instead of one abstract score. */
 function samplePanel(summary: SimSummary): HTMLElement | null {
   const columns: [string, string, ItemState | null][] = [
-    ['Dålig dag', 'p10', summary.samples.p10],
-    ['Typiskt', 'median', summary.samples.median],
-    ['Bra dag', 'p90', summary.samples.p90],
+    ['Bad day', 'p10', summary.samples.p10],
+    ['Typical', 'median', summary.samples.median],
+    ['Good day', 'p90', summary.samples.p90],
   ];
   if (columns.every(([, , item]) => !item)) return null;
 
   return section(
-    'Så här ser föremålen ut',
+    'What the items look like',
     h(
       'div',
       { class: 'grid three' },
@@ -449,12 +449,12 @@ function samplePanel(summary: SimSummary): HTMLElement | null {
                       h('span', null, line.name),
                       h('span', { class: 'mono', style: { color: 'var(--ember)' } }, num(line.value)),
                     ),
-                    bar(share, `${num(line.min)} till ${num(line.max)}`),
+                    bar(share, `${num(line.min)} to ${num(line.max)}`),
                   );
                 }),
                 h('p', { class: 'muted', style: { marginTop: '8px', marginBottom: '0' } }, `${item.echoes.length} echoes`),
               )
-            : h('p', { class: 'empty' }, 'Inget föremål överlevde här.'),
+            : h('p', { class: 'empty' }, 'No item survived here.'),
         ),
       ),
     ),
@@ -467,17 +467,17 @@ function resultPanel(state: State, summary: SimSummary, rerender: () => void): H
     null,
     confidencePanel(state, summary, rerender),
     section(
-      'Resultat',
+      'Results',
       h(
         'div',
         { class: 'grid three' },
         ...[
-          ['Median', pct(summary.median), 'Hälften av dina crafts blir bättre än så här.'],
-          ['Botten 10%', pct(summary.p10), 'Så illa går det en gång av tio.'],
-          ['Topp 10%', pct(summary.p90), 'Så bra går det en gång av tio.'],
-          ['Perfekt item', odds(summary.perfectRate), 'Varje rad nådde max.'],
-          ['Förstört av Soulbet', odds(summary.destroyRate), 'Allt material borta.'],
-          ['Skrotat', odds(summary.scrapRate), 'Craften avbröts, halva materialet tillbaka.'],
+          ['Median', pct(summary.median), 'Half your crafts come out better than this.'],
+          ['Bottom 10%', pct(summary.p10), 'It goes this badly one time in ten.'],
+          ['Top 10%', pct(summary.p90), 'It goes this well one time in ten.'],
+          ['Perfect item', odds(summary.perfectRate), 'Every line reached its maximum.'],
+          ['Destroyed by Soulbet', odds(summary.destroyRate), 'Every material gone.'],
+          ['Scrapped', odds(summary.scrapRate), 'Craft abandoned, half the materials back.'],
         ].map(([label, value, hint]) =>
           h(
             'div',
@@ -491,23 +491,23 @@ function resultPanel(state: State, summary: SimSummary, rerender: () => void): H
       h(
         'p',
         { class: 'muted' },
-        `Snittet är ${pct(summary.mean)}, men snittet är inte mitten: ungefär 37 av 100 crafts hamnar under det. Planera efter medianen.`,
+        `The mean is ${pct(summary.mean)}, but the mean is not the middle: roughly 37 out of 100 crafts land below it. Plan around the median.`,
       ),
-      h('h3', { style: { marginTop: '16px' } }, 'Fördelning över alla körningar'),
+      h('h3', { style: { marginTop: '16px' } }, 'Spread across every run'),
       histogram(summary),
       state.lines.every((line) => line.step === 1 && line.max > line.min)
         ? h(
             'p',
             { class: 'note' },
-            'Alla rader på det här föremålet är heltal, och heltalsrader avrundas uppåt. Det betyder att även ett svagt procentkort flyttar raden minst ett helt steg, så den här sortens item maxas ovanligt snabbt. Föremål med decimalrader är mycket dyrare att pressa till max.',
+            'Every line on this item is a whole number, and whole-number lines round up. That means even a weak percentage card moves the line by at least one full step, so this kind of item maxes out unusually fast. Items with decimal lines are far more expensive to push to the maximum.',
           )
         : null,
     ),
     samplePanel(summary),
     section(
-      'Per stat-rad',
+      'Per stat line',
       table(
-        ['Rad', 'Min', 'Snitt', 'Max', 'Hur nära max'],
+        ['Line', 'Min', 'Mean', 'Max', 'How close to max'],
         state.lines.map((line, index) => {
           const mean = summary.lineMeans[index] ?? line.min;
           const span = line.max - line.min;
@@ -520,16 +520,16 @@ function resultPanel(state: State, summary: SimSummary, rerender: () => void): H
           ];
         }),
       ),
-      h('p', { class: 'muted', style: { marginTop: '10px' } }, `Snitt ${num(summary.meanEchoes, 2)} echoes per item.`),
+      h('p', { class: 'muted', style: { marginTop: '10px' } }, `${num(summary.meanEchoes, 2)} echoes per item on average.`),
     ),
     section(
-      'Exempelkörning',
+      'Example run',
       h(
         'ol',
         { class: 'mono', style: { fontSize: '0.84rem', color: 'var(--ink-dim)' } },
         ...summary.sampleLog.map((entry) => h('li', null, entry)),
       ),
-      summary.sampleLog.length ? null : h('p', { class: 'empty' }, 'Ingen logg (craften överlevde inte).'),
+      summary.sampleLog.length ? null : h('p', { class: 'empty' }, 'No log: the craft did not survive.'),
     ),
   );
 }
@@ -542,23 +542,23 @@ function comparePanel(state: State, cards: CardDef[], rerender: () => void): HTM
   const leader = results[0];
 
   return section(
-    'Jämför spelstilar',
+    'Compare playstyles',
     table(
-      ['Spelstil', 'Median', 'Vinner mot bäst', 'Skillnad', 'Perfekt', 'Förlorat', ''],
+      ['Playstyle', 'Median', 'Beats the best', 'Difference', 'Perfect', 'Lost', ''],
       results.map((row) => [
         h(
           'span',
           null,
           row.strategy.name,
           row.strategy.id === state.strategyId ? h('span', { class: 'chip ember' }, 'vald') : null,
-          row === leader ? h('span', { class: 'chip good' }, 'bäst') : null,
+          row === leader ? h('span', { class: 'chip good' }, 'best') : null,
         ),
         h('span', { class: 'num mono' }, pct(row.summary.median)),
         row === leader
-          ? h('span', { class: 'muted' }, 'referens')
+          ? h('span', { class: 'muted' }, 'baseline')
           : row.tie
-            ? h('span', { class: 'chip' }, 'för nära för att avgöra')
-            : h('span', { class: 'num mono' }, `${Math.round(row.winRate * 100)} av 100`),
+            ? h('span', { class: 'chip' }, 'too close to call')
+            : h('span', { class: 'num mono' }, `${Math.round(row.winRate * 100)} in 100`),
         row === leader
           ? h('span', { class: 'muted' }, '-')
           : h('span', { class: 'num mono' }, `${row.meanDiff >= 0 ? '+' : ''}${pct(row.meanDiff)} ± ${pct(row.ci95)}`),
@@ -576,15 +576,15 @@ function comparePanel(state: State, cards: CardDef[], rerender: () => void): HTM
                   rerender();
                 },
               },
-              'använd',
+              'use it',
             ),
       ]),
     ),
     h(
       'p',
       { class: 'muted' },
-      `Varje spelstil körs på exakt samma ${runs} crafts, så jämförelsen är parvis och turen räknas bort. `,
-      '"Vinner mot bäst" är hur ofta stilen slår den bästa på samma craft. Krockar felmarginalen med noll står det att det är för nära för att avgöra, istället för att låtsas ranka brus.',
+      `Every playstyle runs on exactly the same ${runs} crafts, so the comparison is paired and luck cancels out. `,
+      '"Beats the best" is how often that style beats the leader on the same craft. When the margin of error crosses zero it says so, instead of pretending to rank noise.',
     ),
   );
 }
@@ -598,25 +598,25 @@ function turnCurve(state: State, cards: CardDef[]): HTMLElement {
   const peak = Math.max(...points.map((point) => point.mean), 0.01);
 
   return section(
-    'Vad extra turer är värda',
+    'What extra turns are worth',
     h(
       'div',
       { class: 'hist', style: { height: '150px' } },
       ...points.map((point) =>
         h('div', {
           style: { height: `${(point.mean / peak) * 100}%` },
-          title: `${point.turns} turer: snitt ${pct(point.mean)}, perfekt ${pct(point.perfect, 2)}`,
+          title: `${point.turns} turns: mean ${pct(point.mean)}, perfect ${pct(point.perfect, 2)}`,
         }),
       ),
     ),
     h(
       'div',
       { class: 'spread muted', style: { fontSize: '0.75rem', marginTop: '4px' } },
-      h('span', null, '2 turer'),
-      h('span', null, '30 turer'),
+      h('span', null, '2 turns'),
+      h('span', null, '30 turns'),
     ),
     table(
-      ['Turer', 'Snitt', 'Perfekt item'],
+      ['Turns', 'Mean', 'Perfect item'],
       points.filter((_, index) => index % 2 === 0).map((point) => [
         h('span', { class: 'num mono' }, String(point.turns)),
         h('span', { class: 'num mono' }, pct(point.mean)),
@@ -626,7 +626,7 @@ function turnCurve(state: State, cards: CardDef[]): HTMLElement {
     h(
       'p',
       { class: 'muted' },
-      'Kurvan planar ut eftersom varje procentkort bara tar en andel av gapet som är kvar. Det är därför de sista tiondelarna kostar så många turer.',
+      'The curve flattens because each percentage card only takes a share of the gap that is left. That is why the last tenths cost so many turns.',
     ),
   );
 }
@@ -637,7 +637,7 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
   const data = await db();
   const state = load();
 
-  // Deep link från en föremålssida: #/simulator?item=Copper%20Bow
+  // Deep link from an item page: #/simulator?item=Copper%20Bow
   const wanted = query?.get('item');
   if (wanted) {
     const entity = data.byName.get(wanted);
@@ -659,11 +659,11 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
 
     mount(
       root,
-      h('h1', null, 'Craft-simulator'),
+      h('h1', null, 'Craft simulator'),
       h(
         'p',
         { class: 'lede' },
-        'Crafting bygger på att varje procentkort tar en andel av gapet upp till max, aldrig av värdet du redan har. Det gör resultatet svårt att gissa i huvudet. Här körs hela minispelet några tusen gånger så du ser fördelningen istället för en enda tur körning.',
+        'Crafting works by having each percentage card take a share of the gap up to the maximum, never a share of the value you already have. That makes the outcome hard to guess in your head. Here the whole minigame runs a few thousand times, so you see the spread instead of one lucky run.',
       ),
       h(
         'div',
@@ -671,20 +671,20 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
         h(
           'div',
           null,
-          section('Föremålet', itemPicker(data, state, rerender), h('div', { style: { marginTop: '12px' } }, lineEditor(state, rerender))),
-          section('Craften', knobs(state, rerender)),
+          section('The item', itemPicker(data, state, rerender), h('div', { style: { marginTop: '12px' } }, lineEditor(state, rerender))),
+          section('The craft', knobs(state, rerender)),
         ),
         h(
           'div',
           null,
-          section('Sällsynthet på korten', weightEditor(state, rerender)),
-          section('Kort i leken', cardToggles(data.cards, state, rerender)),
+          section('Card rarity', weightEditor(state, rerender)),
+          section('Cards in the deck', cardToggles(data.cards, state, rerender)),
           h(
             'div',
             { class: 'row' },
-            h('button', { class: 'primary', onclick: () => { state.seed = Math.floor(Math.random() * 999999) + 1; save(state); rerender(); } }, 'Ny seed och kör om'),
-            h('button', { onclick: () => { extra = extra === 'compare' ? 'none' : 'compare'; rerender(); } }, 'Jämför spelstilar'),
-            h('button', { onclick: () => { extra = extra === 'curve' ? 'none' : 'curve'; rerender(); } }, 'Turkurva'),
+            h('button', { class: 'primary', onclick: () => { state.seed = Math.floor(Math.random() * 999999) + 1; save(state); rerender(); } }, 'New seed, run again'),
+            h('button', { onclick: () => { extra = extra === 'compare' ? 'none' : 'compare'; rerender(); } }, 'Compare playstyles'),
+            h('button', { onclick: () => { extra = extra === 'curve' ? 'none' : 'curve'; rerender(); } }, 'Turn curve'),
           ),
         ),
       ),
@@ -694,7 +694,7 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
       h(
         'footer',
         { class: 'site' },
-        'Modellen följer wikins beskrivning av "closing the gap" och avrundning uppåt. Kortens dragchanser, Mystery Strike-spannet och rerollens fördelning är antaganden, markerade som sådana i kortlistan.',
+        'The model follows the wiki description of closing the gap and rounding up. Card draw chances, the Mystery Strike range and the reroll distribution are assumptions, flagged as such in the card list.',
       ),
     );
   };

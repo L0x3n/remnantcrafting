@@ -1,4 +1,4 @@
-// Enskild föremålssida: stats, recept, var det används, var det droppar.
+// A single item page: stats, recipes, what it is used in, what drops it.
 
 import { db, iconUrl, type Database, type Entity } from '../db.ts';
 import { parseStatLines } from '../craft/statlines.ts';
@@ -6,11 +6,11 @@ import { h, num, section, table } from '../ui.ts';
 
 const sourceLabel: Record<string, string> = {
   mining: 'Mining',
-  fishing: 'Fiske',
+  fishing: 'Fishing',
   herbalism: 'Herbalism',
   gathering: 'Gathering',
   drop: 'Drop',
-  shop: 'Butik',
+  shop: 'Vendor',
 };
 
 function nameLink(data: Database, name: string) {
@@ -22,20 +22,20 @@ function statPanel(entity: Entity): HTMLElement | null {
   if (!entity.statLines.length) return null;
   const parsed = parseStatLines(entity.statLines);
   return section(
-    'Stat-rader',
+    'Stat lines',
     parsed.length
       ? table(
-          ['Rad', 'Min', 'Max', 'Spann att crafta i'],
+          ['Line', 'Min', 'Max', 'Range to craft in'],
           parsed.map((line) => [
             line.percent ? `${line.name} (%)` : line.name,
             h('span', { class: 'num mono' }, num(line.min)),
             h('span', { class: 'num mono' }, num(line.max)),
-            line.max > line.min ? h('span', { class: 'chip ember' }, `${num(line.max - line.min)} att jaga`) : h('span', { class: 'chip' }, 'fast värde'),
+            line.max > line.min ? h('span', { class: 'chip ember' }, `${num(line.max - line.min)} to chase`) : h('span', { class: 'chip' }, 'fixed value'),
           ]),
         )
       : h('ul', null, ...entity.statLines.map((line) => h('li', null, line))),
     parsed.some((line) => line.max > line.min)
-      ? h('p', { class: 'muted' }, h('a', { href: `#/simulator?item=${encodeURIComponent(entity.name)}` }, 'Simulera craften av det här föremålet'))
+      ? h('p', { class: 'muted' }, h('a', { href: `#/simulator?item=${encodeURIComponent(entity.name)}` }, 'Simulate crafting this item'))
       : null,
   );
 }
@@ -43,7 +43,7 @@ function statPanel(entity: Entity): HTMLElement | null {
 export async function render(params: Record<string, string>): Promise<Node> {
   const data = await db();
   const entity = data.bySlug.get(params.slug);
-  if (!entity) return h('div', { class: 'panel' }, h('h1', null, 'Okänt föremål'), h('p', null, h('a', { href: '#/db' }, 'Till databasen')));
+  if (!entity) return h('div', { class: 'panel' }, h('h1', null, 'Unknown item'), h('p', null, h('a', { href: '#/db' }, 'Back to the database')));
 
   const recipes = data.recipesByOutput.get(entity.name) ?? [];
   const usedIn = data.recipesByInput.get(entity.name) ?? [];
@@ -51,13 +51,13 @@ export async function render(params: Record<string, string>): Promise<Node> {
   const icon = iconUrl(entity.image);
 
   const meta: [string, string][] = [
-    ['Kategori', entity.kind],
-    ['Typ', entity.weaponType || entity.armorType || entity.accessoryType || entity.equipmentType || entity.inventoryTab || ''],
+    ['Category', entity.kind],
+    ['Type', entity.weaponType || entity.armorType || entity.accessoryType || entity.equipmentType || entity.inventoryTab || ''],
     ['Tier', entity.tier ?? ''],
-    ['Nivå', entity.level ? String(entity.level) : ''],
+    ['Level', entity.level ? String(entity.level) : ''],
     ['Upgrade slots', entity.slots != null ? String(entity.slots) : ''],
     ['Tradable', entity.tradable ?? ''],
-    ['Craftbar', entity.craftable ?? ''],
+    ['Craftable', entity.craftable ?? ''],
   ];
 
   return h(
@@ -83,13 +83,13 @@ export async function render(params: Record<string, string>): Promise<Node> {
       h(
         'div',
         { class: 'row' },
-        recipes.length ? h('a', { class: 'chip ember', href: `#/planner?add=${encodeURIComponent(entity.name)}` }, 'Lägg i planeraren') : null,
+        recipes.length ? h('a', { class: 'chip ember', href: `#/planner?add=${encodeURIComponent(entity.name)}` }, 'Add to the planner') : null,
       ),
     ),
     statPanel(entity),
     recipes.length
       ? section(
-          recipes.length > 1 ? `Recept (${recipes.length} varianter)` : 'Recept',
+          recipes.length > 1 ? `Recipes (${recipes.length} variants)` : 'Recipe',
           ...recipes.map((recipe) =>
             h(
               'div',
@@ -98,7 +98,7 @@ export async function render(params: Record<string, string>): Promise<Node> {
                 'h3',
                 null,
                 h('span', null, `${recipe.profession} lv ${recipe.level ?? '?'}`),
-                h('span', { class: 'chip' }, `ger ${recipe.outputQty}×`),
+                h('span', { class: 'chip' }, `yields ${recipe.outputQty}×`),
               ),
               h(
                 'ul',
@@ -111,9 +111,9 @@ export async function render(params: Record<string, string>): Promise<Node> {
       : null,
     sources.length
       ? section(
-          'Var det kommer ifrån',
+          'Where it comes from',
           table(
-            ['Sätt', 'Plats', 'Chans'],
+            ['How', 'Where', 'Chance'],
             sources.map((source) => [
               sourceLabel[source.via] ?? source.via,
               source.via === 'drop' ? nameLink(data, source.where) : source.where,
@@ -124,12 +124,12 @@ export async function render(params: Record<string, string>): Promise<Node> {
       : null,
     usedIn.length
       ? section(
-          `Används i ${usedIn.length} recept`,
+          `Used in ${usedIn.length} recipes`,
           h(
             'div',
             { class: 'scroll' },
             table(
-              ['Resultat', 'Profession', 'Lv', 'Åtgång'],
+              ['Output', 'Profession', 'Lv', 'Amount'],
               usedIn.map((recipe) => [
                 nameLink(data, recipe.output),
                 recipe.profession,
@@ -141,12 +141,12 @@ export async function render(params: Record<string, string>): Promise<Node> {
         )
       : null,
     entity.echoes.length
-      ? section('Echoes', table(['Echo', 'Antal', 'Chans'], entity.echoes.map((echo) => [echo.name, echo.quantity, echo.chance])))
+      ? section('Echoes', table(['Echo', 'Count', 'Chance'], entity.echoes.map((echo) => [echo.name, echo.quantity, echo.chance])))
       : null,
     h(
       'footer',
       { class: 'site' },
-      'Data hämtad från ',
+      'Data taken from ',
       h('a', { href: `https://soulsremnant.wiki.gg/wiki/${encodeURIComponent(entity.name)}`, target: '_blank', rel: 'noreferrer' }, `soulsremnant.wiki.gg/wiki/${entity.name}`),
       ' (CC BY-SA 4.0).',
     ),

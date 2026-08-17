@@ -1,61 +1,71 @@
 # remnantcrafting
 
-Version 0.1 beta. En webbaserad databas och teorycrafting-sida för Soul's Remnant. Ingen inloggning, ingen server: bara statiska filer.
+Version 0.1 beta. A web-based database and theorycrafting site for Soul's Remnant. No login, no server, just static files.
 
 Made by RapidX.
 
 > This Wiki is a continual work-in-progress, and is maintained by the community.
 
-## Vad sidan gör som wiki.gg inte gör
+## What this site does that wiki.gg does not
 
-| Sida | Vad du får |
+| Page | What you get |
 |---|---|
-| Materialplanerare | Väljer du "2× Copper Bow" bryts allt ner till råmaterial, i rätt craft-ordning, med profession-nivåerna som krävs och var varje material farmas. Materia du redan har dras av. |
-| Craft-simulator | Kör crafting-minispelet några tusen gånger på ditt item. Median, spridning, chans till perfekt item, chans att förlora det, jämförelse mellan spelstilar och en kurva över vad extra turer är värda. |
-| Kortlista | Alla 21 kort med den matematik de faktiskt utför, plus ett räknat exempel per sällsynthet. Antaganden är märkta som antaganden. |
-| Recept | Alla 558 dokumenterade recept, filtrerbara på profession, craftnivå och ingående material. |
+| Material planner | Ask for "2× Copper Bow" and it breaks down to raw materials, in the order you have to craft them, with the profession levels required and where each material is farmed. Anything you already own is subtracted. |
+| Craft simulator | Runs the crafting minigame a few thousand times on your item. Median, spread, chance of a perfect item, chance of losing it, a paired comparison between playstyles, and a curve of what extra turns are worth. |
+| Card list | All 21 cards with the maths they actually perform, plus a worked example per rarity. Assumptions are labelled as assumptions. |
+| Recipes | All 558 documented recipes, filterable by profession, craft level and ingredient. |
 
-Databasen innehåller också föremål, monster, kartor (med vilka noder som finns var) och skills.
+The database also covers items, monsters, maps (with which nodes are where) and skills.
 
-## Kom igång
+## Getting started
 
 ```bash
 npm install
 npm run dev
 ```
 
-Sidan ligger på http://localhost:5280.
+The site runs at http://localhost:5280.
 
-## Uppdatera speldatan
+## Refreshing the game data
 
 ```bash
 npm run fetch && npm run data && npm run images
 ```
 
-- `fetch` hämtar wikins Lua-datamoduler till `data/raw/`
-- `data` konverterar dem till JSON i `public/data/`
-- `images` speglar sprites till `public/img/` (hoppar över det som redan finns)
+- `fetch` pulls the wiki's Lua data modules into `data/raw/`
+- `data` converts them to JSON in `public/data/`
+- `images` mirrors sprites into `public/img/` (skipping whatever is already there)
 
-## Tester
+## Tests
 
 ```bash
 npm test
 ```
 
-Testerna täcker den rena logiken: gap-matematiken (inklusive wikins eget räkneexempel), avrundningen uppåt, korteffekterna, materialexpansionen och stat-parsern. Ingen DOM behövs.
+The tests cover the pure logic: the gap maths (including the wiki's own worked example), the round-up, the card effects, the material expansion and the stat parser. No DOM needed.
 
-## Struktur
+## Structure
 
 ```
-tools/          import: hämtning, Lua-parser, JSON-bygge, kortmodell
-src/craft/      ren logik: engine (minispelet), planner (material), strategy, statlines
-src/pages/      en fil per sida
-public/data/    genererad JSON
-public/img/     speglade sprites
+tools/          import: fetching, the Lua parser, the JSON build, the card model
+src/craft/      pure logic: engine (the minigame), planner (materials), strategy, statlines
+src/pages/      one file per page
+public/data/    generated JSON
+public/img/     mirrored sprites
 ```
 
-`src/craft/` känner varken till DOM eller nätverk, vilket är varför simulatorn går att testa och seeda deterministiskt.
+`src/craft/` knows nothing about the DOM or the network, which is why the simulator is testable and seeded deterministically.
 
-## Licens och källor
+## Deploying
 
-Speldatan kommer från [soulsremnant.wiki.gg](https://soulsremnant.wiki.gg/) och används under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0). Se `CREDITS.md`. Sidan är inte knuten till spelets utvecklare eller till wiki.gg.
+The build output is a plain static folder, so any static host works.
+
+```bash
+npm run build   # writes dist/
+```
+
+`render.yaml` in the repo root describes the site for [Render](https://render.com): a static site that runs `npm ci && npm run build` and publishes `dist`. Point Render at this repository as a Blueprint and it deploys as-is.
+
+## Licence and sources
+
+Game data comes from [soulsremnant.wiki.gg](https://soulsremnant.wiki.gg/) and is used under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0). See `CREDITS.md`. This site is not affiliated with the game's developers or with wiki.gg.

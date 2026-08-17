@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: remnantcrafting
+    runtime: static
+    plan: free
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    headers:
+      # Hashed asset filenames, so they can be cached hard.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # Sprites are content-addressed by name, but the wiki can update them.
+      - path: /img/*
+        name: Cache-Control
+        value: public, max-age=86400
+      # The generated database is refreshed on every rebuild.
+      - path: /data/*
+        name: Cache-Control
+        value: public, max-age=3600
+    routes:
+      # Hash routing means every path serves the same document.
+      - type: rewrite
+        source: /*
+        destination: /index.html

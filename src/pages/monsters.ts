@@ -3,10 +3,10 @@ import { h, section, table } from '../ui.ts';
 
 function detail(data: Database, slug: string): Node {
   const monster = data.monsterBySlug.get(slug);
-  if (!monster) return h('div', { class: 'panel' }, h('h1', null, 'Okänt monster'));
+  if (!monster) return h('div', { class: 'panel' }, h('h1', null, 'Unknown monster'));
   const icon = iconUrl(monster.image);
   const stats: [string, string][] = [
-    ['Nivå', monster.level ? String(monster.level) : ''],
+    ['Level', monster.level ? String(monster.level) : ''],
     ['HP', monster.hp],
     ['Attack', monster.atk],
     ['Defense', monster.def],
@@ -29,22 +29,22 @@ function detail(data: Database, slug: string): Node {
         h('dl', { class: 'kv' }, ...stats.filter(([, value]) => value).flatMap(([key, value]) => [h('dt', null, key), h('dd', null, value)])),
       ),
     ),
-    monster.maps.length ? section('Finns på', h('div', { class: 'row' }, ...monster.maps.map((map) => {
+    monster.maps.length ? section('Found on', h('div', { class: 'row' }, ...monster.maps.map((map) => {
       const location = data.locations.find((each) => each.name === map);
       return location ? h('a', { class: 'chip', href: `#/maps/${location.slug}` }, map) : h('span', { class: 'chip' }, map);
     }))) : null,
     monster.drops.length
       ? section(
-          'Droppar',
+          'Drops',
           table(
-            ['Föremål', 'Chans'],
+            ['Item', 'Chance'],
             monster.drops.map((drop) => {
               const entity = data.byName.get(drop.name);
               return [entity ? h('a', { href: `#/i/${entity.slug}` }, drop.name) : drop.name, drop.chance];
             }),
           ),
         )
-      : h('p', { class: 'empty' }, 'Inga droppar dokumenterade.'),
+      : h('p', { class: 'empty' }, 'No drops documented.'),
   );
 }
 
@@ -56,13 +56,13 @@ export async function render(params: Record<string, string>): Promise<Node> {
   return h(
     'div',
     null,
-    h('h1', null, 'Monster'),
-    h('p', { class: 'lede' }, `${rows.length} monster med stats och droppar.`),
+    h('h1', null, 'Monsters'),
+    h('p', { class: 'lede' }, `${rows.length} monsters with stats and drops.`),
     h(
       'div',
       { class: 'scroll' },
       table(
-        ['', 'Namn', 'Lv', 'HP', 'Atk', 'Def', 'EXP', 'Droppar'],
+        ['', 'Name', 'Lv', 'HP', 'Atk', 'Def', 'EXP', 'Drops'],
         rows.map((monster) => {
           const icon = iconUrl(monster.image);
           return [

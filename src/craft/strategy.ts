@@ -118,28 +118,28 @@ export function makeGreedyStrategy(id: string, name: string, description: string
 
 export const RANDOM_STRATEGY: Strategy = {
   id: 'random',
-  name: 'Slumpmässigt val',
-  description: 'Tar ett slumpmässigt kort varje tur. Finns med som nollreferens att jämföra mot.',
+  name: 'Random picks',
+  description: 'Takes a random card every turn. Included as a zero baseline to measure the others against.',
   choose(hand) {
     return Math.floor(Math.random() * hand.length);
   },
 };
 
 export const STRATEGIES: Strategy[] = [
-  makeGreedyStrategy('max-stats', 'Maxa stats', 'Väljer alltid kortet som stänger mest gap. Ignorerar echoes helt.', {
+  makeGreedyStrategy('max-stats', 'Max stats', 'Always takes the card that closes the most gap. Ignores echoes entirely.', {
     echoWeight: 0,
   }),
-  makeGreedyStrategy('balanced', 'Stats + echoes', 'Värderar en echo ungefär lika mycket som 4% av en full stat-rad.', {
+  makeGreedyStrategy('balanced', 'Stats and echoes', 'Values one echo at roughly 4% of a full stat line.', {
     echoWeight: 0.04,
   }),
-  makeGreedyStrategy('echo-hunter', 'Echo-jägare', 'Prioriterar att fylla echo-slots före stats.', {
+  makeGreedyStrategy('echo-hunter', 'Echo hunter', 'Fills echo slots before chasing stats.', {
     echoWeight: 0.18,
   }),
-  makeGreedyStrategy('turn-greedy', 'Samla turer', 'Tar extra-tur-kort så fort de dyker upp och sparar rerolls till bra lägen.', {
+  makeGreedyStrategy('turn-greedy', 'Bank turns', 'Grabs extra-turn cards on sight and saves rerolls for good spots.', {
     turnValue: 0.22,
     rerollThreshold: 0.05,
   }),
-  makeGreedyStrategy('safe', 'Riskfritt', 'Rör aldrig Soulbet, Scrap eller Echo Trade.', {
+  makeGreedyStrategy('safe', 'No risk', 'Never touches Soulbet, Scrap or Echo Trade.', {
     avoidRisk: true,
   }),
   RANDOM_STRATEGY,

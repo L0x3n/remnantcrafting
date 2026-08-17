@@ -1,4 +1,4 @@
-// Kortlistan med den matematik varje kort faktiskt utför.
+// The card list, with the maths each card actually performs.
 
 import { db } from '../db.ts';
 import { closeGap, type CardDef, type Rarity } from '../craft/engine.ts';
@@ -7,57 +7,57 @@ import { h, num, section } from '../ui.ts';
 const RARITY_ORDER: Rarity[] = ['Common', 'Rare', 'Mythic', 'Legendary'];
 
 const EFFECT_TEXT: Record<string, string> = {
-  gapPercentAll: 'Stänger en andel av gapet på varje stat-rad.',
-  gapPercentOne: 'Stänger en andel av gapet på en rad.',
-  flatStat: 'Lägger till ett fast värde på en rad.',
-  echoLevel: 'Höjer nivån på en echo.',
-  maxOne: 'Sätter en rad till sitt maxvärde.',
-  maxAll: 'Sätter varje rad till sitt maxvärde.',
-  gamble: 'Antingen maxar en rad eller förstör föremålet.',
-  rerollStat: 'Slår om värdet på en eller alla rader.',
-  addEcho: 'Lägger till echoes.',
-  echoTrade: 'Byter stats mot echoes.',
-  extraTurns: 'Ger fler turer i minispelet.',
-  scrap: 'Avbryter craften och ger tillbaka material.',
+  gapPercentAll: 'Closes a share of the gap on every stat line.',
+  gapPercentOne: 'Closes a share of the gap on one line.',
+  flatStat: 'Adds a flat value to one line.',
+  echoLevel: 'Raises the level of an echo.',
+  maxOne: 'Sets one line to its maximum.',
+  maxAll: 'Sets every line to its maximum.',
+  gamble: 'Either maxes a line or destroys the item.',
+  rerollStat: 'Rerolls the value on one line or all of them.',
+  addEcho: 'Adds echoes.',
+  echoTrade: 'Trades stats for echoes.',
+  extraTurns: 'Grants more turns in the minigame.',
+  scrap: 'Abandons the craft and refunds materials.',
 };
 
-/** Vad siffran i kortets värdefält faktiskt betyder, per korttyp. */
+/** What the number in the card's value field actually means, per card type. */
 function valueText(card: CardDef, rarity: Rarity): string {
   const amount = card.values[rarity];
-  if (typeof amount !== 'number') return card.randomPercentRange ? `okänt (antas ${card.randomPercentRange[0]} till ${card.randomPercentRange[1]}%)` : 'okänt';
+  if (typeof amount !== 'number') return card.randomPercentRange ? `unknown (assumed ${card.randomPercentRange[0]} to ${card.randomPercentRange[1]}%)` : 'unknown';
   switch (card.effect) {
     case 'extraTurns':
-      return `+${amount} turer`;
+      return `+${amount} turns`;
     case 'addEcho':
       return `+${amount} echo`;
     case 'flatStat':
-      return `+${amount} på raden`;
+      return `+${amount} on the line`;
     case 'echoLevel':
-      return `+${amount} echo-nivå`;
+      return `+${amount} echo level`;
     case 'maxOne':
-      return 'sätter raden till max';
+      return 'sets the line to max';
     case 'maxAll':
-      return 'sätter varje rad till max';
+      return 'sets every line to max';
     case 'rerollStat':
-      return 'slår om värdet';
+      return 'rerolls the value';
     case 'gamble':
-      return `${amount}% att maxa en rad, ${amount}% att förstöra föremålet`;
+      return `${amount}% to max a line, ${amount}% to destroy the item`;
     case 'scrap':
-      return `${amount}% av materialet tillbaka`;
+      return `${amount}% of the materials back`;
     case 'echoTrade':
-      return `-${amount}% på varje rad, +2 echoes`;
+      return `-${amount}% on every line, +2 echoes`;
     default:
-      return `${amount}% av gapet`;
+      return `${amount}% of the gap`;
   }
 }
 
-/** Konkret exempel: en rad som står på 2,0 av max 10,0. */
+/** A worked example: a line sitting at 2.0 out of a maximum 10.0. */
 function example(card: CardDef, rarity: Rarity): string | null {
   const amount = card.values[rarity];
   if (card.effect !== 'gapPercentAll' && card.effect !== 'gapPercentOne') return null;
   if (typeof amount !== 'number') return null;
   const line = { name: '', min: 2, max: 10, value: 2, step: 0.1, weight: 1 };
-  return `2,0 → ${num(closeGap(line, amount))} (av max 10,0)`;
+  return `2.0 → ${num(closeGap(line, amount))} (of a max 10.0)`;
 }
 
 export async function render(): Promise<Node> {
@@ -67,18 +67,18 @@ export async function render(): Promise<Node> {
   return h(
     'div',
     null,
-    h('h1', null, 'Crafting-kort'),
+    h('h1', null, 'Crafting cards'),
     h(
       'p',
       { class: 'lede' },
-      'De 21 korten som delas mellan professionerna (Cooking räknar procent på ett annat sätt). Procentkorten stänger gapet upp till maxvärdet, så samma kort är värt mycket i början och nästan ingenting när raden nästan är maxad.',
+      'The 21 cards shared across the professions (Cooking calculates percentages differently). Percentage cards close the gap up to the maximum, so the same card is worth a lot early and almost nothing once a line is nearly maxed.',
     ),
     section(
-      'Läs så här',
+      'How to read this',
       h(
         'p',
         null,
-        'Exempelkolumnen visar vad kortet gör med en rad som står på 2,0 och har max 10,0. Det är wikins eget exempel, uträknat med samma avrundning uppåt som spelet använder.',
+        'The example column shows what the card does to a line sitting at 2.0 with a maximum of 10.0. That example comes from the wiki itself, worked out with the same round-up the game uses.',
       ),
     ),
     h(
@@ -108,15 +108,15 @@ export async function render(): Promise<Node> {
       ),
     ),
     section(
-      'Vad som är antaganden',
-      h('p', null, 'Simulatorn behöver siffror som spelet inte publicerar. De här är gissningar, inte uppmätt data:'),
+      'What is assumed',
+      h('p', null, 'The simulator needs numbers the game does not publish. These are guesses, not measurements:'),
       h(
         'ul',
         null,
         ...assumed.map((card) => h('li', null, h('b', null, card.name), ': ', card.note ?? '')),
-        h('li', null, h('b', null, 'Dragchanser'), ': hur ofta varje sällsynthet dyker upp. Justerbart i simulatorn.'),
+        h('li', null, h('b', null, 'Draw chances'), ': how often each rarity shows up. Adjustable in the simulator.'),
       ),
-      h('p', { class: 'muted' }, 'Har du mätt något av det här i spelet? Då blir siffrorna direkt bättre, de sitter i en enda fil (tools/cards.mjs).'),
+      h('p', { class: 'muted' }, 'Measured any of this in game? The numbers get better immediately: they all live in one file (tools/cards.mjs).'),
     ),
   );
 }

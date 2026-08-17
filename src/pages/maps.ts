@@ -6,7 +6,7 @@ const gatherTable = (data: Database, title: string, rows: { name: string; chance
     ? section(
         title,
         table(
-          ['Material', 'Chans'],
+          ['Material', 'Chance'],
           rows.map((row) => {
             const entity = data.byName.get(row.name);
             return [entity ? h('a', { href: `#/i/${entity.slug}` }, row.name) : row.name, row.chance];
@@ -17,7 +17,7 @@ const gatherTable = (data: Database, title: string, rows: { name: string; chance
 
 function detail(data: Database, slug: string): Node {
   const location = data.locationBySlug.get(slug);
-  if (!location) return h('div', { class: 'panel' }, h('h1', null, 'Okänd karta'));
+  if (!location) return h('div', { class: 'panel' }, h('h1', null, 'Unknown map'));
 
   return h(
     'div',
@@ -30,7 +30,7 @@ function detail(data: Database, slug: string): Node {
       h(
         'div',
         { class: 'row' },
-        location.level ? h('span', { class: 'chip ember' }, `Nivå ${location.level}`) : null,
+        location.level ? h('span', { class: 'chip ember' }, `Level ${location.level}`) : null,
         ...location.portals.map((portal) => {
           const target = data.locations.find((each) => each.name === portal);
           return target ? h('a', { class: 'chip', href: `#/maps/${target.slug}` }, `→ ${portal}`) : h('span', { class: 'chip' }, `→ ${portal}`);
@@ -39,7 +39,7 @@ function detail(data: Database, slug: string): Node {
     ),
     location.monsters.length
       ? section(
-          'Monster',
+          'Monsters',
           table(
             ['Monster', 'Essence'],
             location.monsters.map((row) => {
@@ -54,10 +54,10 @@ function detail(data: Database, slug: string): Node {
       { class: 'grid three' },
       gatherTable(data, 'Mining', location.mining),
       gatherTable(data, 'Herbalism', location.herbalism),
-      gatherTable(data, 'Fiske', location.fishing),
+      gatherTable(data, 'Fishing', location.fishing),
     ),
     location.interactables.length
-      ? section('NPC och objekt', h('div', { class: 'row' }, ...location.interactables.map((row) => h('span', { class: 'chip' }, `${row.name}${row.type ? ` (${row.type})` : ''}`))))
+      ? section('NPCs and objects', h('div', { class: 'row' }, ...location.interactables.map((row) => h('span', { class: 'chip' }, `${row.name}${row.type ? ` (${row.type})` : ''}`))))
       : null,
   );
 }
@@ -70,13 +70,13 @@ export async function render(params: Record<string, string>): Promise<Node> {
   return h(
     'div',
     null,
-    h('h1', null, 'Kartor'),
-    h('p', { class: 'lede' }, 'Varje karta med sina monster och sina noder. Nyttigt när planeraren säger att du behöver 240 Quartz.'),
+    h('h1', null, 'Maps'),
+    h('p', { class: 'lede' }, 'Every map with its monsters and its nodes. Useful when the planner tells you that you need 240 Quartz.'),
     h(
       'div',
       { class: 'scroll' },
       table(
-        ['Karta', 'Lv', 'Monster', 'Mining', 'Herbalism', 'Fiske'],
+        ['Map', 'Lv', 'Monsters', 'Mining', 'Herbalism', 'Fishing'],
         rows.map((location) => [
           h('a', { href: `#/maps/${location.slug}` }, location.name),
           h('span', { class: 'num mono' }, location.level ? String(location.level) : ''),

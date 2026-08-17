@@ -1,4 +1,4 @@
-// Materialplanerare: välj mål, få hela materialträdet, inköpslistan och craft-ordningen.
+// Material planner: pick targets, get the whole material tree, the shopping list and the craft order.
 
 import { db, iconUrl, type Database } from '../db.ts';
 import { planCraft, type Plan, type PlanNode } from '../craft/planner.ts';
@@ -41,11 +41,11 @@ function save(state: State): void {
 
 const sourceLabel: Record<string, string> = {
   mining: 'Mining',
-  fishing: 'Fiske',
+  fishing: 'Fishing',
   herbalism: 'Herbalism',
   gathering: 'Gathering',
   drop: 'Drop',
-  shop: 'Butik',
+  shop: 'Vendor',
 };
 
 function sourcesFor(data: Database, name: string): string {
@@ -66,9 +66,9 @@ function treeNode(data: Database, node: PlanNode): HTMLElement {
     entity ? h('a', { href: `#/i/${entity.slug}` }, node.name) : h('span', { class: 'raw' }, node.name),
     node.recipe
       ? h('span', { class: 'muted' }, ` · ${node.recipe.profession} lv ${node.recipe.level ?? '?'}`)
-      : h('span', { class: 'muted' }, sourcesFor(data, node.name) ? ` · ${sourcesFor(data, node.name)}` : ' · råmaterial'),
-    node.shared ? h('span', { class: 'chip' }, 'delas med annan gren') : null,
-    node.cyclic ? h('span', { class: 'chip warn' }, 'cirkulärt recept') : null,
+      : h('span', { class: 'muted' }, sourcesFor(data, node.name) ? ` · ${sourcesFor(data, node.name)}` : ' · raw material'),
+    node.shared ? h('span', { class: 'chip' }, 'shared with another branch') : null,
+    node.cyclic ? h('span', { class: 'chip warn' }, 'circular recipe') : null,
   );
 
   return h(
@@ -81,7 +81,7 @@ function treeNode(data: Database, node: PlanNode): HTMLElement {
 
 function renderPlan(data: Database, plan: Plan, state: State, rerender: () => void): HTMLElement {
   if (!plan.roots.length) {
-    return h('div', { class: 'panel' }, h('p', { class: 'empty' }, 'Lägg till ett mål ovan så räknar jag ut allt du behöver.'));
+    return h('div', { class: 'panel' }, h('p', { class: 'empty' }, 'Add a target above and everything you need gets worked out.'));
   }
 
   const levels = Object.entries(plan.levelByProfession).sort((a, b) => b[1] - a[1]);
@@ -90,18 +90,18 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
     'div',
     null,
     section(
-      'Det här kräver planen',
+      'What this plan demands',
       h(
         'div',
         { class: 'row' },
         ...levels.map(([profession, level]) => h('span', { class: 'chip ember' }, `${profession} lv ${level}`)),
-        h('span', { class: 'chip' }, `${plan.steps.reduce((sum, step) => sum + step.crafts, 0)} craft totalt`),
-        h('span', { class: 'chip' }, `${plan.rawTotals.length} sorters råmaterial`),
+        h('span', { class: 'chip' }, `${plan.steps.reduce((sum, step) => sum + step.crafts, 0)} crafts in total`),
+        h('span', { class: 'chip' }, `${plan.rawTotals.length} kinds of raw material`),
         plan.pooledSavings.length
           ? h(
               'span',
-              { class: 'chip good', title: plan.pooledSavings.map((row) => `${row.name}: ${row.saved} färre`).join(', ') },
-              `${plan.pooledSavings.reduce((sum, row) => sum + row.saved, 0)} crafts sparade på delade batcher`,
+              { class: 'chip good', title: plan.pooledSavings.map((row) => `${row.name}: ${row.saved} fewer`).join(', ') },
+              `${plan.pooledSavings.reduce((sum, row) => sum + row.saved, 0)} crafts saved by sharing batches`,
             )
           : null,
       ),
@@ -111,12 +111,12 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
       'div',
       { class: 'grid two' },
       section(
-        'Inköpslista (råmaterial)',
+        'Shopping list (raw materials)',
         h(
           'div',
           { class: 'scroll' },
           table(
-            ['Antal', 'Material', 'Har', 'Var du hittar det'],
+            ['Need', 'Material', 'Have', 'Where to get it'],
             plan.rawTotals.map((row) => {
               const entity = data.byName.get(row.name);
               const input = h('input', {
@@ -140,7 +140,7 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
                 h(
                   'span',
                   null,
-                  h('span', { class: 'muted' }, sourcesFor(data, row.name) || 'okänd källa'),
+                  h('span', { class: 'muted' }, sourcesFor(data, row.name) || 'source unknown'),
                   pinned
                     ? h(
                         'button',
@@ -153,7 +153,7 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
                             rerender();
                           },
                         },
-                        'crafta istället',
+                        'craft it instead',
                       )
                     : null,
                 ),
@@ -163,12 +163,12 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
         ),
       ),
       section(
-        'Craft-ordning (nedifrån och upp)',
+        'Craft order (bottom up)',
         h(
           'div',
           { class: 'scroll' },
           table(
-            ['#', 'Craft', 'Antal', 'Profession', 'Lv', ''],
+            ['#', 'Craft', 'Runs', 'Profession', 'Lv', ''],
             plan.steps.map((step, index) => {
               const entity = data.byName.get(step.name);
               const alternatives = data.recipesByOutput.get(step.name) ?? [];
@@ -202,14 +202,14 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
                     'button',
                     {
                       class: 'tiny ghost',
-                      title: 'Räkna det här som råmaterial istället för att crafta det',
+                      title: 'Count this as a raw material instead of crafting it',
                       onclick: () => {
                         state.treatAsRaw.add(step.name);
                         save(state);
                         rerender();
                       },
                     },
-                    'köp/farma',
+                    'buy or farm',
                   ),
                 ),
               ];
@@ -218,7 +218,7 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
         ),
       ),
     ),
-    section('Materialträd', h('div', { class: 'tree' }, h('ul', null, ...plan.roots.map((root) => treeNode(data, root))))),
+    section('Material tree', h('div', { class: 'tree' }, h('ul', null, ...plan.roots.map((root) => treeNode(data, root))))),
   );
 }
 
@@ -227,7 +227,7 @@ function targetPicker(data: Database, state: State, rerender: () => void): HTMLE
   const listId = 'planner-outputs';
   const input = h('input', {
     list: listId,
-    placeholder: 'Vad vill du crafta?',
+    placeholder: 'What do you want to craft?',
     style: { minWidth: '260px' },
   });
   const qty = h('input', { type: 'number', min: '1', value: '1' });
@@ -252,13 +252,13 @@ function targetPicker(data: Database, state: State, rerender: () => void): HTMLE
   return h(
     'div',
     { class: 'panel' },
-    h('h2', null, 'Mål'),
+    h('h2', null, 'Targets'),
     h(
       'div',
       { class: 'row' },
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Föremål'), input),
-      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Antal'), qty),
-      h('button', { class: 'primary', onclick: add }, 'Lägg till'),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Item'), input),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Quantity'), qty),
+      h('button', { class: 'primary', onclick: add }, 'Add'),
       state.targets.length
         ? h(
             'button',
@@ -270,7 +270,7 @@ function targetPicker(data: Database, state: State, rerender: () => void): HTMLE
                 rerender();
               },
             },
-            'Rensa alla',
+            'Clear all',
           )
         : null,
     ),
@@ -291,7 +291,7 @@ function targetPicker(data: Database, state: State, rerender: () => void): HTMLE
                 'button',
                 {
                   class: 'tiny ghost',
-                  title: 'Ta bort',
+                  title: 'Remove',
                   onclick: () => {
                     state.targets = state.targets.filter((each) => each !== target);
                     save(state);
@@ -311,7 +311,7 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
   const data = await db();
   const state = load();
 
-  // Deep link från en föremålssida: #/planner?add=Copper%20Bow
+  // Deep link from an item page: #/planner?add=Copper%20Bow
   const add = query?.get('add');
   if (add) {
     const existing = state.targets.find((target) => target.name === add);
@@ -329,11 +329,11 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
       chosenRecipe: state.chosenRecipe,
     });
     root.replaceChildren(
-      h('h1', null, 'Materialplanerare'),
+      h('h1', null, 'Material planner'),
       h(
         'p',
         { class: 'lede' },
-        'Välj vad du vill crafta så bryts allt ner till råmaterial, i rätt ordning, med profession-nivåerna som krävs. Fyll i vad du redan har så dras det av. Allt sparas lokalt i din webbläsare.',
+        'Pick what you want to craft and it breaks down to raw materials, in the right order, with the profession levels required. Enter what you already have and it gets subtracted. Everything is saved locally in your browser.',
       ),
       targetPicker(data, state, rerender),
       renderPlan(data, plan, state, rerender),

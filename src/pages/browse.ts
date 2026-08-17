@@ -1,4 +1,4 @@
-// Föremålsdatabasen med filter.
+// The item database, with filters.
 
 import { db, iconUrl, type Database, type Entity } from '../db.ts';
 import { h, mount, section, table } from '../ui.ts';
@@ -49,7 +49,7 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
   const tiers = [...new Set(data.entities.map((entity) => entity.tier ?? ''))].filter(Boolean).sort();
 
   const renderList = () => {
-    // Namn som bara förekommer som ingrediens hamnar sist: de har ingen egen sida på wikin ännu.
+    // Names that only appear as an ingredient sort last: they have no wiki page yet.
     const rank = (entity: Entity) => (entity.kind === 'unknown' ? 1 : 0);
     const rows = data.entities
       .filter((entity) => matches(entity, filters, craftable))
@@ -57,12 +57,12 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
 
     mount(
       listBox,
-      h('p', { class: 'muted' }, `${rows.length} av ${data.entities.length} föremål`),
+      h('p', { class: 'muted' }, `${rows.length} of ${data.entities.length} items`),
       h(
         'div',
         { class: 'scroll' },
         table(
-          ['', 'Namn', 'Typ', 'Tier', 'Lv', 'Slots', 'Stats', 'Craft'],
+          ['', 'Name', 'Type', 'Tier', 'Lv', 'Slots', 'Stats', 'Craft'],
           rows.slice(0, 400).map((entity) => {
             const icon = iconUrl(entity.image);
             return [
@@ -70,17 +70,17 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
                 ? h('img', { class: 'icon', src: icon, alt: '', loading: 'lazy', onerror: (event: Event) => (event.target as HTMLElement).replaceWith(h('span', { class: 'icon-fallback' }, '?')) })
                 : h('span', { class: 'icon-fallback' }, '?'),
               h('a', { href: `#/i/${entity.slug}` }, entity.name),
-              entity.kind === 'unknown' ? h('span', { class: 'muted' }, 'bara som ingrediens') : typeOf(entity),
+              entity.kind === 'unknown' ? h('span', { class: 'muted' }, 'ingredient only') : typeOf(entity),
               entity.tier ?? '',
               h('span', { class: 'num mono' }, entity.level ? String(entity.level) : ''),
               h('span', { class: 'num mono' }, entity.slots ? String(entity.slots) : ''),
               h('span', { class: 'muted', style: { fontSize: '0.84rem' } }, entity.statLines.join(', ')),
-              craftable.has(entity.name) ? h('span', { class: 'chip good' }, 'ja') : '',
+              craftable.has(entity.name) ? h('span', { class: 'chip good' }, 'yes') : '',
             ];
           }),
         ),
       ),
-      rows.length > 400 ? h('p', { class: 'muted' }, 'Visar de 400 första. Filtrera vidare för att se resten.') : null,
+      rows.length > 400 ? h('p', { class: 'muted' }, 'Showing the first 400. Filter further to see the rest.') : null,
     );
   };
 
@@ -95,7 +95,7 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
 
   const textInput = h('input', {
     type: 'search',
-    placeholder: 'Filtrera på namn',
+    placeholder: 'Filter by name',
     value: filters.text,
     oninput: (event: Event) => {
       filters.text = (event.target as HTMLInputElement).value;
@@ -104,19 +104,19 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
   });
 
   root.replaceChildren(
-    h('h1', null, 'Föremål'),
+    h('h1', null, 'Items'),
     section(
-      'Filter',
+      'Filters',
       h(
         'div',
         { class: 'row' },
-        control('Namn', textInput),
-        control('Kategori', picker(['equipment', 'material', 'consumable', 'unknown'], filters.kind, (value) => (filters.kind = value), 'Alla')),
-        control('Typ', picker(types, filters.type, (value) => (filters.type = value), 'Alla')),
-        control('Tier', picker(tiers, filters.tier, (value) => (filters.tier = value), 'Alla')),
-        control('Craftbar', picker(['yes', 'no'], filters.craftable, (value) => (filters.craftable = value), 'Spelar ingen roll')),
+        control('Name', textInput),
+        control('Category', picker(['equipment', 'material', 'consumable', 'unknown'], filters.kind, (value) => (filters.kind = value), 'All')),
+        control('Type', picker(types, filters.type, (value) => (filters.type = value), 'All')),
+        control('Tier', picker(tiers, filters.tier, (value) => (filters.tier = value), 'All')),
+        control('Craftable', picker(['yes', 'no'], filters.craftable, (value) => (filters.craftable = value), 'Either')),
         control(
-          'Nivå från',
+          'Level from',
           h('input', {
             type: 'number',
             value: '0',
@@ -127,7 +127,7 @@ export async function render(_params: Record<string, string>, query: URLSearchPa
           }),
         ),
         control(
-          'till',
+          'to',
           h('input', {
             type: 'number',
             value: '999',

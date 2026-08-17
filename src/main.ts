@@ -5,28 +5,28 @@ import { debounce, h } from './ui.ts';
 
 const NAV = [
   {
-    title: 'Teorycrafting',
+    title: 'Theorycrafting',
     links: [
-      ['#/planner', 'Materialplanerare'],
-      ['#/simulator', 'Craft-simulator'],
-      ['#/cards', 'Kortlista'],
-      ['#/recipes', 'Recept'],
+      ['#/planner', 'Material planner'],
+      ['#/simulator', 'Craft simulator'],
+      ['#/cards', 'Card list'],
+      ['#/recipes', 'Recipes'],
     ],
   },
   {
-    title: 'Databas',
+    title: 'Database',
     links: [
-      ['#/db', 'Föremål'],
-      ['#/monsters', 'Monster'],
-      ['#/maps', 'Kartor'],
+      ['#/db', 'Items'],
+      ['#/monsters', 'Monsters'],
+      ['#/maps', 'Maps'],
       ['#/skills', 'Skills'],
     ],
   },
   {
-    title: 'Om',
+    title: 'About',
     links: [
-      ['#/', 'Start'],
-      ['#/about', 'Källor och status'],
+      ['#/', 'Home'],
+      ['#/about', 'Sources and status'],
     ],
   },
 ];
@@ -34,9 +34,9 @@ const NAV = [
 function searchBox(): HTMLElement {
   const input = h('input', {
     type: 'search',
-    placeholder: 'Sök föremål, monster, karta, skill…',
+    placeholder: 'Search items, monsters, maps, skills…',
     autocomplete: 'off',
-    'aria-label': 'Sök',
+    'aria-label': 'Search',
   });
   const results = h('div', { class: 'results', hidden: true });
   let cursor = -1;
@@ -54,7 +54,7 @@ function searchBox(): HTMLElement {
     const hits = search(data, query);
     cursor = -1;
     if (!hits.length) {
-      results.replaceChildren(h('a', { href: '#/db' }, 'Inga träffar. Bläddra i databasen istället.'));
+      results.replaceChildren(h('a', { href: '#/db' }, 'No matches. Browse the database instead.'));
       results.hidden = false;
       return;
     }
@@ -154,8 +154,8 @@ function shell(): HTMLElement {
           { class: 'muted' },
           'made by RapidX · version ',
           VERSION,
-          ' · speldata från soulsremnant.wiki.gg under CC BY-SA 4.0 · ',
-          h('a', { href: '#/about' }, 'källor och datastatus'),
+          ' · game data from soulsremnant.wiki.gg under CC BY-SA 4.0 · ',
+          h('a', { href: '#/about' }, 'sources and data status'),
         ),
         twitchButton(),
       ),
@@ -188,5 +188,5 @@ const routes: Route[] = [
 ];
 
 startRouter(routes, shell(), () =>
-  h('div', { class: 'panel' }, h('h1', null, 'Sidan finns inte'), h('p', null, h('a', { href: '#/' }, 'Tillbaka till start'))),
+  h('div', { class: 'panel' }, h('h1', null, 'Page not found'), h('p', null, h('a', { href: '#/' }, 'Back to the home page'))),
 );
