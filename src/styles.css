@@ -448,6 +448,12 @@ table.data tr:hover td {
   top: 0;
 }
 
+table.data select {
+  max-width: 180px;
+  font-size: 0.8rem;
+  padding: 2px 4px;
+}
+
 .num {
   font-family: var(--mono);
   text-align: right;

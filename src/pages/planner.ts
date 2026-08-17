@@ -185,13 +185,10 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
                             rerender();
                           },
                         },
-                        ...alternatives.map((recipe) =>
-                          h(
-                            'option',
-                            { value: recipe.id, selected: state.chosenRecipe[step.name] === recipe.id },
-                            recipe.inputs.map((input) => `${input.qty}× ${input.name}`).join(' + '),
-                          ),
-                        ),
+                        ...alternatives.map((recipe) => {
+                          const label = recipe.inputs.map((input) => `${input.qty}× ${input.name}`).join(' + ');
+                          return h('option', { value: recipe.id, title: label, selected: state.chosenRecipe[step.name] === recipe.id }, label);
+                        }),
                       )
                     : null,
                   h(
