@@ -1,0 +1,21 @@
+{
+  "name": "soulsremnant-wiki",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "fetch": "node tools/fetch-wiki.mjs",
+    "data": "node tools/build-data.mjs",
+    "images": "node tools/fetch-images.mjs",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "tsc --noEmit",
+    "test": "node --test \"tests/*.test.ts\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5"
+  }
+}

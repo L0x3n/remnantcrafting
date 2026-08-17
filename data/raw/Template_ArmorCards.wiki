@@ -1,0 +1,48 @@
+{| class="mw-collapsible mw-collapsed wikitable sortable"
+! colspan = 6 | Crafting Cards
+|-
+! style="width: 10em" | Name !! style="width: 30em" | Description !! style="width: 8em" | Common !! style="width: 8em" | Rare !! style="width: 8em" | Mythic !! style="width: 8em" | Legendary
+|-
+|Soulbet || 50% to max one main stat. 50% to destroy the item. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Polish || Bump every main stat by [15 / 30 / 50]% || [[File:Sadling.png|16px|link=]] ▯ || [[File:Jel.png|16px|link=]] ▯ || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Sharpen || Bump listed stat by [25 / 55 / 70]% || [[File:Sadling.png|16px|link=]] ▯ || [[File:Jel.png|16px|link=]] ▯ || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Mystify || Enhance listed Echo by +1 (does ''not'' consume a slot) ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Nurture || Enhance listed stat by +1 (does ''not'' consume a slot) ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Scrap || Destroy the item and refund 50% of the materials. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Wild Reroll || Randomize the value of a random main stat. || [[File:Sadling.png|16px|link=]] ▯ ||  ||  || 
+|-
+|Targeted Reroll || Randomize listed Stat line value. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Total Reroll || Randomize the value of every main Stat. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Echo Devotion || Sacrifice one echo to enhance listed stat by 80% ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Imbue Echo || Add 1 random Echo. || [[File:Sadling.png|16px|link=]] ▯ ||  ||  || 
+|-
+|Double Imbue || Add 2 random Echoes. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Targeted Echo || Add listed Echo (Item dependent). ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Echo Trade || Reduce all main stat by 35%, but add 2 random Echoes. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Mystery Strike || Bump listed stat by a mystery amount. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Lucky Strike || Bump a random main stat by 55% ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Patient Forge || Gain 2 extra turns. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Triple Imbue || Add 3 random Echoes. ||  ||  ||  || [[File:Gilded Slime.png|16px|link=]] ▯
+|-
+|Boundless Forge || Gain 3 extra turns. ||  ||  ||  || [[File:Gilded Slime.png|16px|link=]] ▯
+|-
+|Mastercraft || Max out listed main stat. ||  ||  ||  || [[File:Gilded Slime.png|16px|link=]] ▯
+|-
+|Apotheosis || Maximize every main stat. ||  ||  ||  || [[File:Gilded Slime.png|16px|link=]] ▯
+|-
+|}

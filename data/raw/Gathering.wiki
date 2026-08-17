@@ -1,0 +1,8 @@
+{{WIP}}
+[[File:FishingWindow.png|link=|thumb|Keep the fish in the box with your Left and Right keys!]]
+[[File:GatherArrows.png|link=|thumb|R·L·R·U·U·L·U·D]]
+[[File:GatherFrenzy.png|link=|thumb|Frenzy! Don't mess up!]]
+[[File:SpecialGather.png|link=|thumb|Special node! Look at that special glow!]]
+To use Mining and Gathering, press the skill, and then walk over to a revealed node and use your Interact key. By default that would be your Spacebar. One or more rows of options will appear for you, and you can pick which reward you get from the node by pressing the according combination of directional inputs.
+
+To use Fishing, press the skill and land the bobber in water. Upon seeing and hearing a yellow exclamation mark over your head, press the Fishing skill again. A window will appear, where you must keep the fish inside the gray box by using your Left and Right keys.

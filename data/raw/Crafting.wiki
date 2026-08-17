@@ -1,0 +1,108 @@
+<div style="float:right; margin-left:10px;">
+[[File:CraftGearRolls.png|240px|thumb|A player made item that will help with Weapon Crafting!|link=]]
+</div>
+<div class="toc-description-container">
+__TOC__
+<div class="toc-description-flexbox">
+{{WIP}}
+There are a variety of crafting professions available in Soul's Remnant, and some Stats and [[Echo|Echoes]] and even consumables can provide benefits for all of them or just one profession in particular. Whatever your level of preparation in terms of buffs and/or equipment, all professions follow the same type of crafting minigame. This page is here to help explain what that entails.
+
+The crafting window is set to the [,] key by default, and after opening the window you'll have to select the profession you're interested in viewing and/or interacting with. Even from the very beginning of your playtime, you can see every recipe's material requirements and the required profession level to craft them by clicking on said item. Though, if your profession level is too low, the item's sprite will be blacked out and there will be red-colored text to further indicate that your level is too low for you to attempt the craft. 
+</div>
+</div>
+After reaching the required crafting level and collecting the necessary materials, you'll be able to craft the item you want. For certain items, like most of the Alchemy options, the craft will be instantaneous. You click the button, and the item is made. When an item has the Auto Craft option available, using this option will have a similar outcome. Click, finish, item obtained. But for most crafted items, and likely for most of the items you'll craft, they'll all have a more personal touch to them. 
+
+After all, it's your name on the product, isn't it? 
+
+So let's see some passion! Get your name out there! Help make yourself and/or others become the best versions of themselves!
+
+==The Minigame==
+[[File:CraftUIexample.png|right|560px|link=]]
+When entering the crafting minigame, you'll be presented with a UI that looks like this:
+
+The item's appearance will be displayed in the top-left, and the item's current spread of Stats and Echoes will be kept updated in the top-right. When you begin most crafts, your item won't start with any Echoes on them. Furthermore, while their Stats may not always be at their absolute minimum, they ''will'' start off fairly low. 
+
+Below that is the card system, with your remaining rerolls and turns displaying to the right. Taking up most of the minigame UI is the cards themselves. There are several kinds of cards, with some having lower and higher rarity variants of themselves, and you will always be shown three cards a time. 
+
+The crafting minigame involves you making a series of decisions among the three random cards you are given, and whether or not you use a Reroll to get a new set of three random cards to choose from. After you select a card, one of your remaining Turns is consumed, and the effect of the chosen card is applied to your item. The item's Stats and Echoes will be updated in the top-right, and if you still have at least 1 more Turn, you will receive new cards that you must choose from once again. 
+
+This will continue until you run out of turns, at which point the minigame will truly end. The item will be made with its final combination of Stats and Echoes that you crafted onto it, and placed in the appropriate tab in your inventory. 
+
+if your crafting level is higher than the crafting recipe required level, you'll have increased chance to get echo when crafting 
+
+
+
+
+
+
+
+
+
+
+==Percentages==
+Some of the cards you'll be selecting while crafting will have percentages on them. When you choose a card that mentions an increase via percentage, such as +50%, that '''percentage is not taken from the current value of the stat''' it is affecting (Cooking is an exception to this, but don't worry about that for now). Crafting in this game operates on a "closing the gap" system, where an item's maximum value for a stat is kept in mind. This means that when you select a card that provides a +50% boost, '''it will take the difference between the line's current value and the line's maximum value, and calculate based on that.'''
+
+Let's say that an item you're crafting currently has +2.0 global attack, and the maximum value of global attack that that item can roll is +10.0. This means that there is a value difference of 8.0 between your current item and what your item could be. So, if you get a card that boosts global attack by +50%, the card will change your item from +2.0 to +6.0, because 50% of the difference is equal to 4.0. Pretty nice, right?
+
+That being said, this also makes truly maxing out a line relatively difficult. Because when you're almost maxed out, the gap between the item's current value and the item's maximum value is so much smaller that even taking a card that has something like +75% will only net you a tiny improvement. Using the above example again, if your item were to have +9.0 global attack out of +10.0 global attack, then using a +75% card would result in an item with +9.8 global attack. Still an improvement of course, but not perfection, huh...
+
+Sounds like a job for extra turns/rerolls :)
+
+==More Turns, More Rerolls==
+<div style="float:right; margin-left:10px;">
+[[File:ApotheosisCard.png|160px|thumb|More turns also means more chances to get legendary cards!|link=]]
+</div>
+Thankfully, most line values are always rounded up to the tenth decimal place. And lines restricted to whole numbers are all the better, because in those situations we ''still'' round up! This makes it so reaching the maximum value for a line ''is'' possible. You just have to throw enough cards at the problem. And the key to doing that is getting yourself more minigame turns and rerolls!
+
+With every item you craft, you will earn the assigned amount of skill EXP that that item grants for its relevant profession. Each profession operates much like the gathering skills and combat passives, providing various permanent buffs to your character with each level. As you level your profession, you will occasionally unlock new recipes as well as occasionally gain additional crafting turns and rerolls for said profession. This is the most common, and even ''inevitable'' shall we say, method through which players will accumulate what's needed to have more fruitful crafts.
+
+But as shown by the first image on this page, you don't need to only rely on the level of your profession here. Various items can roll Echoes that help with one profession's or even all professions' minigame, from equipment to even food. To be more specific, '''only select equipment types can have Echoes that aid in crafting'''. 
+
+For further detail please check this community-based spreadsheet on what items can roll what Echoes:
+ [https://docs.google.com/spreadsheets/d/1gLqSAF_9sZpkHI_XVxQWJS9IfCOvPLIppeZI_1QS8wQ/edit?gid=0#gid=0 Equipment Echoes w/ Calamity Gem]
+<br>
+<div style="float:right; margin-left:10px;">
+[[File:StopCraftingMessage.png|200px|thumb|Clicking the "X" in the very top-right will show this message.|link=]]
+</div>
+As for consumables from Cooking, if an item can be put through the crafting minigame, then that is all it takes for there to be a chance of it gaining crafting Echoes. Cooking can be a convenient way to boost your crafting, so long as you remember to actually eat your food and keep in mind that the food's buff on you isn't permanent. If a consumable from Cooking grants you a buff, then it is a buff ''with a duration''. If you aren't mindful of the buff's duration, you just might start a new craft and see that you have less turns and rerolls than you were expecting. 
+
+And that's how the crafting in Soul's Remnant works. The crafting system may make truly perfect items almost impossible to create, but only ''almost'' impossible. With higher crafting levels/proficiency you get both more turns and more rerolls, and with proper gear you can get even more. Of course, to get that kind of gear you'll likely need to craft it as well, won't you? :)
+
+So good luck to you, crafters! Whether you work together or try to make your own way forward, the equipment and the meals you'll be making will be quite the sight!
+
+==Shared Cards==
+Most crafting professions share a lot of cards between them. Here's the list of cards for Armor Crafting, since every card you see here can be found in the other professions as well (besides Cooking)! 
+
+{{ArmorCards}}
+
+==Professions==
+Here is a list of Soul's Remnant's professions!
+
+*[[File:BackpackSlotIcon.png|32px|link=General]] [[General]]
+**A select few pieces of equipment are made through General crafting, and so are [[Campfire]]s!
+<br>
+*{{Favicon|Icon=Alchemy|Name=Alchemy|link=}}
+**Potions!
+<br>
+*{{Favicon|Icon=Weapon Smithing|Name=Weapon Smithing|link=}}
+**Weapons!
+<br>
+
+*{{Favicon|Icon=Armor Crafting|Name=Armor Crafting|link=}}
+**Hats! Topwear! Bottomwear! Shoes!
+<br>
+
+*{{Favicon|Icon=Jeweler|Name=Jeweler|link=}}
+**Accessories!
+<br>
+
+*{{Favicon|Icon=Cooking|Name=Cooking|link=}}
+**Foods!
+<br>
+
+*[[File:blacksmithing scaled 16x pngcrushed.png|32px|link=Artisan]] [[Artisan]]
+**Planned to be used for furniture crafting, this is currently the profession focused on crafting instruments!
+<br>
+
+*{{Favicon|Icon=Transmutation|Name=Transmutation|link=}}
+**A special type of crafting reserved solely for changing the element on your weapon. [[Matters]], which are crafted through Alchemy, are a common part of every recipe.

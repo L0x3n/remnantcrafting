@@ -1,0 +1,92 @@
+{{Skill}}
+==Cards==
+The Stats provided by Cooking items are treated as already being at maximum value, including hearts gained from gifting to [[Villagers]].<br>What this means is that cards that affect cooking item Stats will calculate off of the item's current value. There are also no Echoes improvement cards for cooking, only cards that add Echoes. When viewing the table, refer to the bonus descriptions here:
+
+*'''Utility Bonuses'''
+**Echoes Find, EXP Gain, Skill EXP Gain, Light Radius 
+*'''Offensive Bonuses''' 
+**Global attack, Global damage%, Crit Rate, Crit damage, Elemental Effect Chance, Elemental Effect Potency, Global Attack Speed, Armor Penetration, Damage Balance, Skill Range %, Accuracy
+*'''Defensive Bonuses'''
+**Instant heal MP, Instant heal HP, Knockback Res, Max HP%, Max MP%, HP regeneration per tick, MP regeneration per tick, Chance MP gain per hit, Chance MP gain per hit
+*'''Gathering Bonuses'''
+**Special Node Chance, Frenzy Node Chance
+*'''Crafting Bonuses'''
+**More Turns, More Rerolls
+
+{| class="mw-collapsible mw-collapsed wikitable sortable"
+! colspan = 6 | Cooking Cards
+|-
+! style="width: 15em" | Name !! style="width: 30em" | Description !! style="width: 8em" | Common !! style="width: 8em" | Rare !! style="width: 8em" | Mythic !! style="width: 8em" | Legendary
+|-
+|Tailored Recipe || Tune this dish to a chosen Villager's taste (+30% hearts) ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Generous Portion || Increase gift value (more hearts from any Villager) ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Choice Wanderer's Spice || Add one chosen utility bonus Echo. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Wanderer's Spice || Add a random utility bonus Echo. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Choice Offensive Cut || Add one chosen offensive bonus Echo. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Offensive Seasoning || Add a random offensive bonus Echo. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Choice Hearty Cut || Add one chosen defensive bonus Echo. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Hearty Seasoning || Add a random defensive bonus Echo. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Choice Forager's Garnish || Add one chosen gathering bonus Echo. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Forager's Garnish || Add a random gathering bonus Echo. ||  || [[File:Jel.png|16px|link=]] ▯ || || 
+|-
+|Choice Artisan's Garnish || Add one chosen crafting bonus Echo. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Artisan's Garnish || Add a random crafting bonus Echo. ||  || [[File:Jel.png|16px|link=]] ▯ || || 
+|-
+|Comfort Food || Heal 35% more HP when eaten. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Slow-Cooked || Food buff lasts +25% longer. ||  || [[File:Jel.png|16px|link=]] ▯ ||  || 
+|-
+|Preserved Feast || Food buff lasts +50% longer. ||  ||  || [[File:Cursed Slime.png|16px|link=]] ▯ || 
+|-
+|Eternal Repast || Food buff lasts +70% longer. ||  ||  ||  || [[File:Gilded Slime.png|16px|link=]] ▯
+|-
+|}
+
+==Recipes==
+{{#invoke:Data/Formatting|get|stat=crafting}}
+This is a list of recipes and their effects. Bonus applies if it is a completed dish that can roll cooking cards for bonus effects.
+{| class="mw-collapsible mw-collapsed wikitable sortable"
+! colspan = 6 | Cooking Cards
+|-
+! style="width: 15em" | Name !! style="width: 30em" | Description !! style="width: 8em" | Ingredients !! style="width: 8em" | Effects  !! style="width: 8em" | Bonus?
+|-
+| [[Flour]] || Nice and ground flour || 2 Wheat || - || -
+|-
+| [[Grilled Clam]] || A clam grilled to perfection. || 1 Clam, 1 Salt || +9 HP || -
+|-
+| [[Sugar]] || It's sweet, duh. || 1 Green Herb || - || -
+|-
+| [[Plain Salad]] || A clam grilled to perfection. || 6 Red Herb, 6 Green Herb, 6 Blue Herb || +1 INT, +16 HP, 10 Minutes || ✅
+|-
+| [[Bread]] || A simple, heart loaf. || 2 Flour || +12 HP || -
+|-
+| [[Banana Bread]] || Delicious bread made from yummy bananas! || 5 Flour, 4 Banana, 1 Sugar || +1 SPR, +19 HP, 11 Minutes || ✅
+|-
+| [[Clam Salad]] || A delicious Clam Salad, freshly cooked. || 4 Clam, 4 Red Herb, 4 Green Herb, 4 Blue Herb || +1 INT, +14 HP, 10 Minutes|| ✅
+|-
+| [[Grilled Clam Salad]] || A delicious Grilled Clam Salad, freshly cooked. || 3 Grilled Clam, 3 Red Herb, 3 Green Herb, 3 Blue Herb|| +1 INT, +16 HP, 10 Minutes || ✅
+|-
+| [[Cooked Shrimp]] || A small but tasty seafood treat. || 12 Shrimp, 3 Salt, 3 Lemon || +1 DEX, +20 HP, 11 Minutes || ✅
+|-
+| [[Tempura]] || A delicious Tempura, freshly cooked. || 7 Shrimp, 4 Flour, 4 Salt || +1 DEX, +23 HP, 12 Minutes || ✅
+|-
+| [[Apple Salad]] || A delicious Apple Salad, freshly cooked. || 4 Apple, 4 Red Herb, 4 Green Herb, 4 Blue Herb || +1 INT, +21 HP, 11 Minutes || ✅
+|-
+| [[Apple Pie]] || A delicious Apple Pie, freshly cooked. || 5 Apple, 5 Flour, 1 Sugar || +1 SPR, +22 HP, 11 Minutes || ✅
+|-
+| [[Marshmallow]] || A pristine looking marshmallow... you almost want to eat it raw... for some reason you also feel inclined to comment about it on a certain steam profile page. Weird. || 2 Sugar || +1 CON, +6% Speed, +8 HP, 10 Minutes || -
+|}
+
+==Miscellaneous [[File:Chaomoon Coin.png|30px|link=]]==
+
+==History [[File:MapsIcon.png|30px|link=]]==

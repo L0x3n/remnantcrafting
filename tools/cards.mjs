@@ -1,0 +1,201 @@
+// Mechanical model of the crafting cards.
+//
+// Names, descriptions and rarity availability come from the wiki table
+// (Template:ArmorCards) and are merged in at build time. Everything in here that
+// the wiki does not state outright is marked `assumed: true` with the reasoning in
+// `note`, so the simulator can show the player exactly what it is guessing.
+//
+// effect ids are implemented in src/craft/engine.ts.
+
+export const CARD_MECHANICS = [
+  {
+    id: 'polish',
+    name: 'Polish',
+    effect: 'gapPercentAll',
+    target: 'all',
+    values: { Common: 15, Rare: 30, Mythic: 50 },
+    rarities: ['Common', 'Rare', 'Mythic'],
+  },
+  {
+    id: 'sharpen',
+    name: 'Sharpen',
+    effect: 'gapPercentOne',
+    target: 'listed',
+    values: { Common: 25, Rare: 55, Mythic: 70 },
+    rarities: ['Common', 'Rare', 'Mythic'],
+  },
+  {
+    id: 'lucky-strike',
+    name: 'Lucky Strike',
+    effect: 'gapPercentOne',
+    target: 'random',
+    values: { Rare: 55 },
+    rarities: ['Rare'],
+  },
+  {
+    id: 'mystery-strike',
+    name: 'Mystery Strike',
+    effect: 'gapPercentOne',
+    target: 'listed',
+    values: { Mythic: null },
+    randomPercentRange: [25, 100],
+    assumed: true,
+    note: 'The wiki only says "a mystery amount". Modelled as a uniform roll in the configured range.',
+    rarities: ['Mythic'],
+  },
+  {
+    id: 'echo-devotion',
+    name: 'Echo Devotion',
+    effect: 'gapPercentOne',
+    target: 'listed',
+    values: { Mythic: 80 },
+    consumesEcho: 1,
+    rarities: ['Mythic'],
+  },
+  {
+    id: 'nurture',
+    name: 'Nurture',
+    effect: 'flatStat',
+    target: 'listed',
+    values: { Rare: 1 },
+    rarities: ['Rare'],
+    note: 'Does not consume an upgrade slot.',
+  },
+  {
+    id: 'mystify',
+    name: 'Mystify',
+    effect: 'echoLevel',
+    target: 'listedEcho',
+    values: { Rare: 1 },
+    rarities: ['Rare'],
+    note: 'Does not consume an upgrade slot.',
+  },
+  {
+    id: 'mastercraft',
+    name: 'Mastercraft',
+    effect: 'maxOne',
+    target: 'listed',
+    values: { Legendary: 100 },
+    rarities: ['Legendary'],
+  },
+  {
+    id: 'apotheosis',
+    name: 'Apotheosis',
+    effect: 'maxAll',
+    target: 'all',
+    values: { Legendary: 100 },
+    rarities: ['Legendary'],
+  },
+  {
+    id: 'soulbet',
+    name: 'Soulbet',
+    effect: 'gamble',
+    target: 'random',
+    values: { Mythic: 50 },
+    destroyChance: 0.5,
+    rarities: ['Mythic'],
+  },
+  {
+    id: 'wild-reroll',
+    name: 'Wild Reroll',
+    effect: 'rerollStat',
+    target: 'random',
+    values: { Common: 1 },
+    assumed: true,
+    note: 'Reroll distribution is undocumented; modelled as uniform between the line minimum and maximum.',
+    rarities: ['Common'],
+  },
+  {
+    id: 'targeted-reroll',
+    name: 'Targeted Reroll',
+    effect: 'rerollStat',
+    target: 'listed',
+    values: { Rare: 1 },
+    assumed: true,
+    note: 'Reroll distribution is undocumented; modelled as uniform between the line minimum and maximum.',
+    rarities: ['Rare'],
+  },
+  {
+    id: 'total-reroll',
+    name: 'Total Reroll',
+    effect: 'rerollStat',
+    target: 'all',
+    values: { Rare: 1 },
+    assumed: true,
+    note: 'Reroll distribution is undocumented; modelled as uniform between the line minimum and maximum.',
+    rarities: ['Rare'],
+  },
+  {
+    id: 'imbue-echo',
+    name: 'Imbue Echo',
+    effect: 'addEcho',
+    target: 'random',
+    values: { Common: 1 },
+    rarities: ['Common'],
+  },
+  {
+    id: 'double-imbue',
+    name: 'Double Imbue',
+    effect: 'addEcho',
+    target: 'random',
+    values: { Mythic: 2 },
+    rarities: ['Mythic'],
+  },
+  {
+    id: 'triple-imbue',
+    name: 'Triple Imbue',
+    effect: 'addEcho',
+    target: 'random',
+    values: { Legendary: 3 },
+    rarities: ['Legendary'],
+  },
+  {
+    id: 'targeted-echo',
+    name: 'Targeted Echo',
+    effect: 'addEcho',
+    target: 'listedEcho',
+    values: { Rare: 1 },
+    rarities: ['Rare'],
+  },
+  {
+    id: 'echo-trade',
+    name: 'Echo Trade',
+    effect: 'echoTrade',
+    target: 'all',
+    values: { Rare: 35 },
+    assumed: true,
+    note: 'Assumed to move every stat 35% of the way back down toward its minimum, mirroring how gains close the gap upward.',
+    rarities: ['Rare'],
+  },
+  {
+    id: 'patient-forge',
+    name: 'Patient Forge',
+    effect: 'extraTurns',
+    target: 'none',
+    values: { Mythic: 2 },
+    rarities: ['Mythic'],
+  },
+  {
+    id: 'boundless-forge',
+    name: 'Boundless Forge',
+    effect: 'extraTurns',
+    target: 'none',
+    values: { Legendary: 3 },
+    rarities: ['Legendary'],
+  },
+  {
+    id: 'scrap',
+    name: 'Scrap',
+    effect: 'scrap',
+    target: 'none',
+    values: { Rare: 50 },
+    rarities: ['Rare'],
+  },
+];
+
+/**
+ * Draw weights per rarity. The game does not publish these anywhere, so the
+ * simulator ships a default the player can edit, and every result is labelled
+ * with the weights it was produced under.
+ */
+export const DEFAULT_RARITY_WEIGHTS = { Common: 62, Rare: 27, Mythic: 9, Legendary: 2 };
