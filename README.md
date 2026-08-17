@@ -64,7 +64,9 @@ The build output is a plain static folder, so any static host works.
 npm run build   # writes dist/
 ```
 
-`render.yaml` in the repo root describes the site for [Render](https://render.com): a static site that runs `npm ci && npm run build` and publishes `dist`. Point Render at this repository as a Blueprint and it deploys as-is.
+`render.yaml` in the repo root describes the site for [Render](https://render.com): a static site that runs `npm ci && npm run build` and publishes `dist`. One click sets it up:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/L0x3n/remnantcrafting)
 
 ## Licence and sources
 
