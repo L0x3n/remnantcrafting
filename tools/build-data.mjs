@@ -238,17 +238,51 @@ async function main() {
   const locationsRaw = parseDataModule(await read('Module_Data_Locations.lua'));
   const skillsRaw = parseDataModule(await read('Module_Data_Skills.lua'));
 
-  const entities = [
+  const rawEntities = [
     ...Object.values(equipmentRaw).map(equipmentEntity),
     ...Object.entries(itemsRaw).map(([, raw]) => itemEntity(raw, 'material')),
     ...Object.entries(consumablesRaw).map(([, raw]) => itemEntity(raw, 'consumable')),
   ].filter((entity) => entity.name);
 
-  const recipes = dedupeRecipes([
-    ...collectRecipes(equipmentRaw, { ownerIsOutput: true }),
-    ...collectRecipes(itemsRaw, { ownerIsOutput: true }),
-    ...collectRecipes(consumablesRaw, { ownerIsOutput: true }),
-  ]);
+  // The source spells a few materials two ways ("Iron Plate" and "Iron plate").
+  // They are the same thing, so collapse them onto one canonical name, or the
+  // shopping list ends up splitting one material across two rows.
+  const canonicalName = new Map();
+  const entities = [];
+  const bySlugSeen = new Map();
+  for (const entity of rawEntities) {
+    const existing = bySlugSeen.get(entity.slug);
+    if (!existing) {
+      bySlugSeen.set(entity.slug, entity);
+      entities.push(entity);
+      canonicalName.set(entity.name, entity.name);
+      continue;
+    }
+    // Keep whichever spelling carries more data; alias the other to it.
+    const score = (each) => JSON.stringify(each).length;
+    const winner = score(entity) > score(existing) ? entity : existing;
+    const loser = winner === entity ? existing : entity;
+    if (winner !== existing) {
+      entities[entities.indexOf(existing)] = winner;
+      bySlugSeen.set(entity.slug, winner);
+    }
+    canonicalName.set(loser.name, winner.name);
+    canonicalName.set(winner.name, winner.name);
+    aliasWarnings.push(`${loser.name} slogs ihop med ${winner.name}`);
+  }
+  const canon = (name) => canonicalName.get(name) ?? name;
+
+  const recipes = dedupeRecipes(
+    [
+      ...collectRecipes(equipmentRaw, { ownerIsOutput: true }),
+      ...collectRecipes(itemsRaw, { ownerIsOutput: true }),
+      ...collectRecipes(consumablesRaw, { ownerIsOutput: true }),
+    ].map((recipe) => ({
+      ...recipe,
+      output: canon(recipe.output),
+      inputs: recipe.inputs.map((input) => ({ ...input, name: canon(input.name) })),
+    })),
+  );
 
   // Every name that shows up anywhere, so the planner can walk a material tree
   // even when an ingredient has no page of its own yet.

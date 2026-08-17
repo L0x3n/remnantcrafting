@@ -307,6 +307,49 @@ export interface SimConfig {
   handSize?: number;
 }
 
+/**
+ * Fallback ranking used when a strategy wants to reroll but cannot: pick whatever
+ * closes the most gap right now, and prefer a card that does nothing over one that
+ * throws the item away.
+ */
+export function bestCardIndex(hand: DrawnCard[], state: ItemState): number {
+  let best = 0;
+  let bestGain = -Infinity;
+  hand.forEach((card, index) => {
+    const line = card.lineIndex != null ? state.lines[card.lineIndex] : undefined;
+    let gain = 0;
+    switch (card.def.effect) {
+      case 'gapPercentAll':
+        gain = state.lines.reduce((sum, each) => sum + (closeGap(each, card.amount) - each.value), 0);
+        break;
+      case 'gapPercentOne':
+        gain = line ? closeGap(line, card.amount) - line.value : 0;
+        break;
+      case 'flatStat':
+        gain = line ? Math.min(line.max, line.value + card.amount) - line.value : 0;
+        break;
+      case 'maxOne':
+        gain = line ? line.max - line.value : 0;
+        break;
+      case 'maxAll':
+        gain = state.lines.reduce((sum, each) => sum + (each.max - each.value), 0);
+        break;
+      case 'gamble':
+      case 'scrap':
+      case 'echoTrade':
+        gain = -1;
+        break;
+      default:
+        gain = 0;
+    }
+    if (gain > bestGain) {
+      bestGain = gain;
+      best = index;
+    }
+  });
+  return best;
+}
+
 export function runCraft(initial: ItemState, config: SimConfig, rng: Rng): ItemState {
   let state = cloneState(initial);
   let guard = 0;
@@ -321,7 +364,9 @@ export function runCraft(initial: ItemState, config: SimConfig, rng: Rng): ItemS
       continue;
     }
 
-    const index = choice === 'reroll' ? 0 : choice;
+    // A strategy that asks to reroll with no rerolls left still has to play
+    // something, and it should be the best card in hand, not the first one.
+    const index = choice === 'reroll' ? bestCardIndex(hand, state) : choice;
     state = applyCard(state, hand[index], rng, config.echoPool);
     state.turns -= 1;
   }

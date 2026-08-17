@@ -64,10 +64,10 @@ function treeNode(data: Database, node: PlanNode): HTMLElement {
     null,
     h('span', { class: 'qty' }, `${node.qty}× `),
     entity ? h('a', { href: `#/i/${entity.slug}` }, node.name) : h('span', { class: 'raw' }, node.name),
-    node.covered > 0 ? h('span', { class: 'chip good' }, `${node.covered} i lager`) : null,
     node.recipe
-      ? h('span', { class: 'muted' }, ` · ${node.recipe.profession} lv ${node.recipe.level ?? '?'} · ${node.crafts} craft`)
+      ? h('span', { class: 'muted' }, ` · ${node.recipe.profession} lv ${node.recipe.level ?? '?'}`)
       : h('span', { class: 'muted' }, sourcesFor(data, node.name) ? ` · ${sourcesFor(data, node.name)}` : ' · råmaterial'),
+    node.shared ? h('span', { class: 'chip' }, 'delas med annan gren') : null,
     node.cyclic ? h('span', { class: 'chip warn' }, 'cirkulärt recept') : null,
   );
 
@@ -97,6 +97,13 @@ function renderPlan(data: Database, plan: Plan, state: State, rerender: () => vo
         ...levels.map(([profession, level]) => h('span', { class: 'chip ember' }, `${profession} lv ${level}`)),
         h('span', { class: 'chip' }, `${plan.steps.reduce((sum, step) => sum + step.crafts, 0)} craft totalt`),
         h('span', { class: 'chip' }, `${plan.rawTotals.length} sorters råmaterial`),
+        plan.pooledSavings.length
+          ? h(
+              'span',
+              { class: 'chip good', title: plan.pooledSavings.map((row) => `${row.name}: ${row.saved} färre`).join(', ') },
+              `${plan.pooledSavings.reduce((sum, row) => sum + row.saved, 0)} crafts sparade på delade batcher`,
+            )
+          : null,
       ),
       ...plan.warnings.map((warning) => h('p', { class: 'note' }, warning)),
     ),

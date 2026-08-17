@@ -10,6 +10,7 @@ import {
   roundUpTo,
   rollRarity,
   runCraft,
+  bestCardIndex,
   simulate,
   type CardDef,
   type DrawnCard,
@@ -218,4 +219,28 @@ test('the same seed reproduces the same simulation', () => {
   const b = simulate(state(), config, 50, 2026);
   assert.deepEqual(a.histogram, b.histogram);
   assert.equal(a.mean, b.mean);
+});
+
+test('a strategy that wants to reroll with none left still plays the best card', () => {
+  const scrap = card({ id: 'scrap', name: 'Scrap', effect: 'scrap', target: 'none' }, { lineIndex: null });
+  const master = card({ id: 'mastercraft', name: 'Mastercraft', effect: 'maxOne', target: 'listed' }, { lineIndex: 0, amount: 100 });
+  const weak = card({ id: 'polish', name: 'Polish', effect: 'gapPercentAll', target: 'all' }, { lineIndex: null, amount: 15 });
+
+  // Before the fix this returned index 0, which threw the craft away.
+  assert.equal(bestCardIndex([scrap, master, weak], state()), 1);
+  assert.equal(bestCardIndex([scrap, weak], state()), 1);
+
+  const alwaysReroll = { id: 'r', name: 'r', description: '', choose: () => 'reroll' as const };
+  const result = runCraft(
+    state({ turns: 1, rerolls: 0 }),
+    {
+      draw: {
+        cards: [scrap.def, master.def],
+        rarityWeights: { Common: 0, Rare: 1, Mythic: 0, Legendary: 0 },
+      },
+      strategy: alwaysReroll,
+    },
+    makeRng(9),
+  );
+  assert.equal(result.turns, 0);
 });

@@ -63,7 +63,7 @@ export function scoreCard(card: DrawnCard, state: ItemState, options: GreedyOpti
       return Math.min(room, amount || 1) * options.echoWeight;
     }
     case 'extraTurns':
-      return options.avoidRisk ? amount * perTurn : amount * perTurn;
+      return amount * perTurn;
     case 'rerollStat': {
       // A reroll lands, on average, at the middle of the line's range.
       const targets = def.target === 'all' ? state.lines.map((_, i) => i) : line ? [index] : [];
