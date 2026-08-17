@@ -247,6 +247,7 @@ async function main() {
   // The source spells a few materials two ways ("Iron Plate" and "Iron plate").
   // They are the same thing, so collapse them onto one canonical name, or the
   // shopping list ends up splitting one material across two rows.
+  const aliasWarnings = [];
   const canonicalName = new Map();
   const entities = [];
   const bySlugSeen = new Map();
@@ -272,17 +273,47 @@ async function main() {
   }
   const canon = (name) => canonicalName.get(name) ?? name;
 
+  const rawRecipes = [
+    ...collectRecipes(equipmentRaw, { ownerIsOutput: true }),
+    ...collectRecipes(itemsRaw, { ownerIsOutput: true }),
+    ...collectRecipes(consumablesRaw, { ownerIsOutput: true }),
+  ];
+
+  // Ingredient names that never got their own page can also be spelled two ways
+  // ("Iron Plate" / "Iron plate"). Fold those onto one spelling too, preferring
+  // a real entity name when one exists.
+  const bySlugName = new Map(entities.map((entity) => [entity.slug, entity.name]));
+  for (const recipe of rawRecipes) {
+    for (const name of [recipe.output, ...recipe.inputs.map((input) => input.name)]) {
+      const key = slugify(name);
+      if (!key) continue;
+      const current = bySlugName.get(key);
+      if (!current) {
+        bySlugName.set(key, name);
+      } else if (current !== name && !canonicalName.has(name)) {
+        canonicalName.set(name, current);
+        aliasWarnings.push(`${name} slogs ihop med ${current}`);
+      }
+    }
+  }
+
   const recipes = dedupeRecipes(
-    [
-      ...collectRecipes(equipmentRaw, { ownerIsOutput: true }),
-      ...collectRecipes(itemsRaw, { ownerIsOutput: true }),
-      ...collectRecipes(consumablesRaw, { ownerIsOutput: true }),
-    ].map((recipe) => ({
+    rawRecipes.map((recipe) => ({
       ...recipe,
       output: canon(recipe.output),
       inputs: recipe.inputs.map((input) => ({ ...input, name: canon(input.name) })),
     })),
   );
+
+  // Recipes that list their own output as an ingredient are copy-paste errors on
+  // the wiki, not real mechanics. Surface them instead of quietly planning around them.
+  const selfReferential = recipes
+    .filter((recipe) => recipe.inputs.some((input) => input.name === recipe.output))
+    .map((recipe) => ({
+      output: recipe.output,
+      qty: recipe.inputs.find((input) => input.name === recipe.output).qty,
+      profession: recipe.profession,
+    }));
 
   // Every name that shows up anywhere, so the planner can walk a material tree
   // even when an ingredient has no page of its own yet.
@@ -416,6 +447,10 @@ async function main() {
         cards: cards.length,
         sourcedMaterials: Object.keys(sources).length,
       },
+      dataIssues: {
+        selfReferential,
+        mergedNames: aliasWarnings,
+      },
     }),
   };
 
@@ -428,6 +463,11 @@ async function main() {
   console.log(`locations     ${locations.length}`);
   console.log(`skills        ${skills.length}`);
   console.log(`cards         ${cards.length}`);
+  if (selfReferential.length) {
+    console.warn(`WARN ${selfReferential.length} recept listar sig själva som ingrediens (fel i källan):`);
+    for (const row of selfReferential) console.warn(`     ${row.output} kräver ${row.qty}x ${row.output}`);
+  }
+  for (const warning of aliasWarnings) console.warn(`WARN ${warning}`);
   if (unmatched.length) console.warn(`WARN cards modelled but not in the wiki table: ${unmatched.join(', ')}`);
   if (unmodelled.length) console.warn(`WARN cards in the wiki table with no mechanics: ${unmodelled.join(', ')}`);
   for (const [file, bytes] of Object.entries(sizes)) console.log(`  ${file.padEnd(16)} ${(bytes / 1024).toFixed(1)} kB`);

@@ -11,6 +11,10 @@ import {
   rollRarity,
   runCraft,
   bestCardIndex,
+  atLeastOnce,
+  attemptsFor,
+  shareAtLeast,
+  comparePaired,
   simulate,
   type CardDef,
   type DrawnCard,
@@ -243,4 +247,99 @@ test('a strategy that wants to reroll with none left still plays the best card',
     makeRng(9),
   );
   assert.equal(result.turns, 0);
+});
+
+test('the confidence formula answers "how many must I craft"', () => {
+  // 1 - (1 - p)^n: the average number of attempts only gets you to ~63%.
+  assert.ok(Math.abs(atLeastOnce(0.1, 10) - 0.6513) < 0.001);
+  assert.equal(atLeastOnce(0, 50), 0);
+  assert.equal(atLeastOnce(1, 1), 1);
+  // 90% confidence at a 10% hit rate takes 22 attempts, not 9.
+  assert.equal(attemptsFor(0.1, 0.9), 22);
+  assert.equal(attemptsFor(0, 0.9), Infinity);
+});
+
+test('shareAtLeast counts runs that reached the target', () => {
+  assert.equal(shareAtLeast([0, 0.5, 0.9, 1], 0.9), 0.5);
+  assert.equal(shareAtLeast([], 0.5), 0);
+});
+
+test('a destroyed craft and a scrapped craft are counted apart', () => {
+  const scrapOnly: CardDef = {
+    id: 'scrap',
+    name: 'Scrap',
+    description: '',
+    effect: 'scrap',
+    target: 'none',
+    values: { Rare: 50 },
+    rarities: ['Rare'],
+  };
+  // A strategy forced to play the only card there is.
+  const takeFirst = { id: 'f', name: 'f', description: '', choose: () => 0 as const };
+  const summary = simulate(
+    state({ turns: 4, rerolls: 0 }),
+    {
+      draw: { cards: [scrapOnly], rarityWeights: { Common: 0, Rare: 1, Mythic: 0, Legendary: 0 } },
+      strategy: takeFirst,
+    },
+    200,
+    5,
+  );
+  assert.equal(summary.scrapRate, 1);
+  assert.equal(summary.destroyRate, 0);
+});
+
+test('two identical strategies compare as a tie, not a ranking', () => {
+  const cards: CardDef[] = [
+    {
+      id: 'polish',
+      name: 'Polish',
+      description: '',
+      effect: 'gapPercentAll',
+      target: 'all',
+      values: { Common: 15, Rare: 30, Mythic: 50 },
+      rarities: ['Common', 'Rare', 'Mythic'],
+    },
+  ];
+  const a = makeGreedyStrategy('a', 'a', '');
+  const b = makeGreedyStrategy('b', 'b', '');
+  const results = comparePaired(
+    state({ turns: 6, rerolls: 1 }),
+    { draw: { cards, rarityWeights: { Common: 62, Rare: 27, Mythic: 9, Legendary: 2 } } },
+    [a, b],
+    300,
+    7,
+  );
+  // Same policy on the same seeds must produce exactly the same crafts.
+  assert.equal(results[0].meanDiff, 0);
+  assert.equal(results[1].meanDiff, 0);
+  assert.equal(results[1].winRate, 0);
+});
+
+test('the simulator keeps real items from the unlucky, typical and lucky end', () => {
+  const cards: CardDef[] = [
+    {
+      id: 'sharpen',
+      name: 'Sharpen',
+      description: '',
+      effect: 'gapPercentOne',
+      target: 'listed',
+      values: { Common: 25, Rare: 55, Mythic: 70 },
+      rarities: ['Common', 'Rare', 'Mythic'],
+    },
+  ];
+  const summary = simulate(
+    state({ turns: 5, rerolls: 0 }),
+    {
+      draw: { cards, rarityWeights: { Common: 62, Rare: 27, Mythic: 9, Legendary: 2 } },
+      strategy: makeGreedyStrategy('g', 'g', ''),
+    },
+    500,
+    3,
+  );
+  assert.ok(summary.samples.p10 && summary.samples.median && summary.samples.p90);
+  const value = (item: ItemState | null) => item!.lines[0].value;
+  assert.ok(value(summary.samples.p10) <= value(summary.samples.median));
+  assert.ok(value(summary.samples.median) <= value(summary.samples.p90));
+  assert.equal(summary.scores.length, 500);
 });

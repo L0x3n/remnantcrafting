@@ -48,7 +48,15 @@ export async function render(): Promise<Node> {
         h('li', null, `${noSources} material saknar dokumenterad källa (var de farmas).`),
         h('li', null, `${counts.placeholders} namn förekommer bara som ingrediens i andra recept och har ingen egen sida ännu.`),
         h('li', null, 'Gathering-sidan på wikin är märkt som pågående arbete, så nodnivåer och exp saknas.'),
-        h('li', null, 'Cooking räknar procent på ett annat sätt än övriga professioner, och det är inte dokumenterat hur. Simulatorn modellerar därför inte Cooking separat.'),
+        h(
+          'li',
+          null,
+          'Cooking vänder på gap-mekaniken: cooking-föremål börjar på sitt maxvärde och korten räknar på nuvarande värde. Simulatorn modellerar bara den vanliga riktningen, alltså inte Cooking.',
+        ),
+        ...(data.meta.dataIssues?.selfReferential ?? []).map((row) =>
+          h('li', null, h('b', null, row.output), ` listar sig själv som ingrediens (${row.qty} st). Ett rent skrivfel i källan, planeraren stannar där istället för att loopa.`),
+        ),
+        ...(data.meta.dataIssues?.mergedNames ?? []).map((row) => h('li', null, row, ' (samma material, två stavningar i källan).')),
       ),
       h('p', { class: 'muted' }, 'Luckorna kommer från källan, inte från importen. De listas här så att inget ser mer komplett ut än det är.'),
     ),

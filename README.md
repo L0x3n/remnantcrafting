@@ -13,7 +13,7 @@ Made by RapidX.
 | Materialplanerare | Väljer du "2× Copper Bow" bryts allt ner till råmaterial, i rätt craft-ordning, med profession-nivåerna som krävs och var varje material farmas. Materia du redan har dras av. |
 | Craft-simulator | Kör crafting-minispelet några tusen gånger på ditt item. Median, spridning, chans till perfekt item, chans att förlora det, jämförelse mellan spelstilar och en kurva över vad extra turer är värda. |
 | Kortlista | Alla 21 kort med den matematik de faktiskt utför, plus ett räknat exempel per sällsynthet. Antaganden är märkta som antaganden. |
-| Recept | Alla 563 dokumenterade recept, filtrerbara på profession, craftnivå och ingående material. |
+| Recept | Alla 558 dokumenterade recept, filtrerbara på profession, craftnivå och ingående material. |
 
 Databasen innehåller också föremål, monster, kartor (med vilka noder som finns var) och skills.
 

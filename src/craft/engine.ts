@@ -383,32 +383,72 @@ export interface SimSummary {
   best: number;
   worst: number;
   perfectRate: number;
+  /** Soulbet blew the item up: nothing comes back. */
   destroyRate: number;
+  /** the craft was scrapped: half the materials come back, so this is not the same loss. */
+  scrapRate: number;
   meanEchoes: number;
   /** mean final value per stat line, in the same order as the input lines */
   lineMeans: number[];
   histogram: { bucket: number; count: number }[];
   sampleLog: string[];
+  /** every run's completion score, sorted, so the page can ask its own questions of it */
+  scores: number[];
+  /** real items from the runs closest to the 10th, 50th and 90th percentile */
+  samples: { p10: ItemState | null; median: ItemState | null; p90: ItemState | null };
+}
+
+/** Share of runs that reached at least `target` completion. */
+export function shareAtLeast(scores: number[], target: number): number {
+  if (!scores.length) return 0;
+  let count = 0;
+  for (const score of scores) if (score >= target - 1e-9) count++;
+  return count / scores.length;
+}
+
+/**
+ * Chance of getting at least one success in `attempts` tries.
+ * The formula behind the "how many items must I craft" question: 1 - (1 - p)^n.
+ */
+export const atLeastOnce = (p: number, attempts: number): number =>
+  p <= 0 ? 0 : 1 - Math.pow(1 - p, Math.max(0, attempts));
+
+/** Attempts needed before `confidence` of players have had at least one success. */
+export function attemptsFor(p: number, confidence: number): number {
+  if (p <= 0 || confidence >= 1) return Infinity;
+  return Math.ceil(Math.log(1 - confidence) / Math.log(1 - p));
 }
 
 export function simulate(initial: ItemState, config: SimConfig, runs: number, seed: number): SimSummary {
   const rng = makeRng(seed);
   const scores: number[] = [];
+  const survivors: { score: number; state: ItemState }[] = [];
   const lineTotals = new Array(initial.lines.length).fill(0);
   let perfect = 0;
   let destroyed = 0;
+  let scrapped = 0;
   let echoTotal = 0;
   let sampleLog: string[] = [];
 
   for (let i = 0; i < runs; i++) {
     const result = runCraft(initial, config, rng);
-    if (result.destroyed || result.scrapped) {
+    // Destroyed and scrapped both score zero, but they are not the same loss:
+    // a scrap gives half the materials back. Count them apart.
+    if (result.destroyed) {
       destroyed++;
       scores.push(0);
+      if (i === 0) sampleLog = result.log;
+      continue;
+    }
+    if (result.scrapped) {
+      scrapped++;
+      scores.push(0);
+      if (i === 0) sampleLog = result.log;
       continue;
     }
     const score = completion(result);
     scores.push(score);
+    survivors.push({ score, state: result });
     if (isPerfect(result)) perfect++;
     echoTotal += result.echoes.length;
     result.lines.forEach((line, index) => {
@@ -417,9 +457,16 @@ export function simulate(initial: ItemState, config: SimConfig, runs: number, se
     if (i === 0) sampleLog = result.log;
   }
 
-  const survived = runs - destroyed || 1;
+  const lost = destroyed + scrapped;
+  const survived = runs - lost || 1;
   const sorted = [...scores].sort((a, b) => a - b);
   const at = (q: number) => sorted[Math.min(sorted.length - 1, Math.max(0, Math.floor(q * sorted.length)))] ?? 0;
+
+  // Real items from the unlucky, typical and lucky end of the run, because
+  // "0,72 completion" is a number nobody can picture.
+  survivors.sort((a, b) => a.score - b.score);
+  const pickSample = (q: number) =>
+    survivors.length ? survivors[Math.min(survivors.length - 1, Math.floor(q * survivors.length))].state : null;
 
   const buckets = new Array(20).fill(0);
   for (const score of scores) buckets[Math.min(19, Math.floor(score * 20))]++;
@@ -434,9 +481,71 @@ export function simulate(initial: ItemState, config: SimConfig, runs: number, se
     worst: sorted[0] ?? 0,
     perfectRate: perfect / (runs || 1),
     destroyRate: destroyed / (runs || 1),
+    scrapRate: scrapped / (runs || 1),
     meanEchoes: echoTotal / survived,
     lineMeans: lineTotals.map((total) => total / survived),
     histogram: buckets.map((count, bucket) => ({ bucket: bucket / 20, count })),
     sampleLog,
+    scores: sorted,
+    samples: { p10: pickSample(0.1), median: pickSample(0.5), p90: pickSample(0.9) },
   };
+}
+
+// ------------------------------------------------------- paired comparison
+
+export interface PairedResult {
+  strategy: Strategy;
+  summary: SimSummary;
+  /** mean of (this strategy - baseline) on the same craft */
+  meanDiff: number;
+  /** half-width of the 95% confidence interval on that mean */
+  ci95: number;
+  /** share of crafts where this strategy beat the baseline */
+  winRate: number;
+  /** true when the interval spans zero, so the ranking is noise */
+  tie: boolean;
+}
+
+/**
+ * Runs every strategy against the SAME seeds (common random numbers) and compares
+ * them craft by craft. Pairing removes the shared luck, which in practice cuts the
+ * runs needed to resolve a small difference by roughly an order of magnitude.
+ */
+export function comparePaired(
+  initial: ItemState,
+  base: Omit<SimConfig, 'strategy'>,
+  strategies: Strategy[],
+  runs: number,
+  seed: number,
+): PairedResult[] {
+  const perRun: number[][] = strategies.map(() => []);
+
+  for (let i = 0; i < runs; i++) {
+    strategies.forEach((strategy, index) => {
+      // Same seed for every strategy on run i, so they face the same luck.
+      const result = runCraft(initial, { ...base, strategy }, makeRng(seed + i));
+      perRun[index].push(result.destroyed || result.scrapped ? 0 : completion(result));
+    });
+  }
+
+  const summaries = strategies.map((strategy, index) => simulate(initial, { ...base, strategy }, runs, seed));
+  const meanOf = (values: number[]) => values.reduce((sum, value) => sum + value, 0) / (values.length || 1);
+  const baselineIndex = perRun.map(meanOf).reduce((best, mean, index, all) => (mean > all[best] ? index : best), 0);
+  const baseline = perRun[baselineIndex];
+
+  return strategies.map((strategy, index) => {
+    const diffs = perRun[index].map((value, run) => value - baseline[run]);
+    const mean = meanOf(diffs);
+    const variance = diffs.reduce((sum, value) => sum + (value - mean) ** 2, 0) / Math.max(1, diffs.length - 1);
+    const ci95 = 1.96 * Math.sqrt(variance / (diffs.length || 1));
+    const wins = diffs.filter((value) => value > 1e-9).length;
+    return {
+      strategy,
+      summary: summaries[index],
+      meanDiff: mean,
+      ci95,
+      winRate: wins / (diffs.length || 1),
+      tie: index !== baselineIndex && Math.abs(mean) <= ci95,
+    };
+  });
 }

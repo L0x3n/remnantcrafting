@@ -86,6 +86,10 @@ export interface Meta {
   generatedFrom: string;
   professions: string[];
   counts: Record<string, number>;
+  dataIssues?: {
+    selfReferential: { output: string; qty: number; profession: string }[];
+    mergedNames: string[];
+  };
 }
 
 export interface Database {

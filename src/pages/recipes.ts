@@ -1,4 +1,4 @@
-// Receptlistan: alla 563 recept, filtrerbara på profession, nivå och material.
+// Receptlistan: alla 558 recept, filtrerbara på profession, nivå och material.
 
 import { db, type Database } from '../db.ts';
 import { h, section, table } from '../ui.ts';

@@ -3,9 +3,20 @@
 
 import { db, type Database } from '../db.ts';
 import { parseStatLines, toStatLine } from '../craft/statlines.ts';
-import { simulate, type CardDef, type ItemState, type Rarity, type StatLine, type SimSummary } from '../craft/engine.ts';
+import {
+  atLeastOnce,
+  attemptsFor,
+  comparePaired,
+  shareAtLeast,
+  simulate,
+  type CardDef,
+  type ItemState,
+  type Rarity,
+  type StatLine,
+  type SimSummary,
+} from '../craft/engine.ts';
 import { STRATEGIES } from '../craft/strategy.ts';
-import { bar, h, mount, num, pct, section, table } from '../ui.ts';
+import { bar, frag, h, mount, num, pct, section, table } from '../ui.ts';
 
 const RARITIES: Rarity[] = ['Common', 'Rare', 'Mythic', 'Legendary'];
 const DEFAULT_WEIGHTS: Record<Rarity, number> = { Common: 62, Rare: 27, Mythic: 9, Legendary: 2 };
@@ -22,6 +33,10 @@ interface State {
   runs: number;
   seed: number;
   disabled: Set<string>;
+  /** the completion the player calls "good enough" */
+  target: number;
+  /** how many items they plan to craft, for the confidence readout */
+  attempts: number | null;
 }
 
 const DEFAULT_LINES: StatLine[] = [{ name: 'Global Attack', min: 2, max: 10, value: 2, step: 0.1, weight: 1 }];
@@ -38,6 +53,8 @@ function load(): State {
     runs: 2000,
     seed: 2026,
     disabled: new Set<string>(),
+    target: 0.9,
+    attempts: null,
   };
   try {
     const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
@@ -327,10 +344,128 @@ function histogram(summary: SimSummary): HTMLElement {
   );
 }
 
-function resultPanel(state: State, summary: SimSummary): HTMLElement {
+/** "0,84%" plus the frequency people actually feel, "1 av 119". */
+function odds(p: number, digits = 2): string {
+  if (p <= 0) return 'aldrig';
+  if (p >= 1) return 'alltid';
+  // The "1 in N" form only helps for rare things; at 95% it just reads as "1 in 1".
+  return p < 0.25 ? `${pct(p, digits)} · 1 av ${Math.round(1 / p)}` : pct(p, digits);
+}
+
+/** How many crafts you need, and what a given number of crafts buys you. */
+function confidencePanel(state: State, summary: SimSummary, rerender: () => void): HTMLElement {
+  const hit = shareAtLeast(summary.scores, state.target);
+  const planned = state.attempts ?? (hit > 0 ? Math.ceil(1 / hit) : 0);
+  const confidence = atLeastOnce(hit, planned);
+
+  const targetInput = h('input', {
+    type: 'range',
+    min: '0',
+    max: '100',
+    step: '1',
+    value: String(Math.round(state.target * 100)),
+    oninput: (event: Event) => {
+      state.target = Number((event.target as HTMLInputElement).value) / 100;
+      state.attempts = null;
+      save(state);
+      rerender();
+    },
+  });
+
+  const attemptInput = h('input', {
+    type: 'number',
+    min: '1',
+    value: String(planned),
+    style: { width: '90px' },
+    onchange: (event: Event) => {
+      state.attempts = Math.max(1, Number((event.target as HTMLInputElement).value) || 1);
+      save(state);
+      rerender();
+    },
+  });
+
+  return section(
+    'Hur många måste du crafta?',
+    h(
+      'div',
+      { class: 'row center' },
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Bra nog vid'), targetInput, h('small', null, `${pct(state.target, 0)} av maxstats`)),
+      h('div', { class: 'field' }, h('span', { class: 'field-label' }, 'Du craftar'), attemptInput, h('small', null, 'st')),
+    ),
+    h(
+      'p',
+      { style: { fontSize: '1.15rem', marginTop: '10px' } },
+      hit > 0
+        ? frag(
+            h('b', { style: { color: 'var(--ember)' } }, `${Math.round(hit * 100)} av 100 crafts`),
+            ` når minst ${pct(state.target, 0)}. Craftar du ${planned} st är chansen att minst en lyckas `,
+            h('b', { style: { color: 'var(--ember)' } }, pct(confidence, 1)),
+            '.',
+          )
+        : `Ingen av ${summary.runs} körningar nådde ${pct(state.target, 0)}. Sänk kravet eller skaffa fler turer.`,
+    ),
+    hit > 0
+      ? h(
+          'p',
+          { class: 'muted' },
+          `För att lyckas 9 gånger av 10 behöver du ${attemptsFor(hit, 0.9)} ${attemptsFor(hit, 0.9) === 1 ? 'craft' : 'crafts'}. `,
+          'Formeln är 1 - (1 - p)^n, där p är chansen per craft och n är antalet crafts. ',
+          'Notera att standardvärdet ovan (ett genomsnitt) bara ger dig runt 63% chans, inte 100%.',
+        )
+      : null,
+  );
+}
+
+/** Three real items instead of one abstract score. */
+function samplePanel(summary: SimSummary): HTMLElement | null {
+  const columns: [string, string, ItemState | null][] = [
+    ['Dålig dag', 'p10', summary.samples.p10],
+    ['Typiskt', 'median', summary.samples.median],
+    ['Bra dag', 'p90', summary.samples.p90],
+  ];
+  if (columns.every(([, , item]) => !item)) return null;
+
+  return section(
+    'Så här ser föremålen ut',
+    h(
+      'div',
+      { class: 'grid three' },
+      ...columns.map(([label, note, item]) =>
+        h(
+          'div',
+          { class: 'card-tile' },
+          h('h3', null, h('span', null, label), h('span', { class: 'chip' }, note)),
+          item
+            ? frag(
+                ...item.lines.map((line) => {
+                  const span = line.max - line.min;
+                  const share = span <= 0 ? 1 : (line.value - line.min) / span;
+                  return h(
+                    'div',
+                    { style: { marginBottom: '8px' } },
+                    h(
+                      'div',
+                      { class: 'spread', style: { fontSize: '0.85rem' } },
+                      h('span', null, line.name),
+                      h('span', { class: 'mono', style: { color: 'var(--ember)' } }, num(line.value)),
+                    ),
+                    bar(share, `${num(line.min)} till ${num(line.max)}`),
+                  );
+                }),
+                h('p', { class: 'muted', style: { marginTop: '8px', marginBottom: '0' } }, `${item.echoes.length} echoes`),
+              )
+            : h('p', { class: 'empty' }, 'Inget föremål överlevde här.'),
+        ),
+      ),
+    ),
+  );
+}
+
+function resultPanel(state: State, summary: SimSummary, rerender: () => void): HTMLElement {
   return h(
     'div',
     null,
+    confidencePanel(state, summary, rerender),
     section(
       'Resultat',
       h(
@@ -338,20 +473,25 @@ function resultPanel(state: State, summary: SimSummary): HTMLElement {
         { class: 'grid three' },
         ...[
           ['Median', pct(summary.median), 'Hälften av dina crafts blir bättre än så här.'],
-          ['Snitt', pct(summary.mean), 'Medelvärdet över alla körningar.'],
           ['Botten 10%', pct(summary.p10), 'Så illa går det en gång av tio.'],
           ['Topp 10%', pct(summary.p90), 'Så bra går det en gång av tio.'],
-          ['Perfekt item', pct(summary.perfectRate, 2), 'Andel crafts där varje rad nådde max.'],
-          ['Förlorat item', pct(summary.destroyRate, 2), 'Soulbet eller Scrap förstörde craften.'],
+          ['Perfekt item', odds(summary.perfectRate), 'Varje rad nådde max.'],
+          ['Förstört av Soulbet', odds(summary.destroyRate), 'Allt material borta.'],
+          ['Skrotat', odds(summary.scrapRate), 'Craften avbröts, halva materialet tillbaka.'],
         ].map(([label, value, hint]) =>
           h(
             'div',
             { class: 'card-tile' },
             h('div', { class: 'field-label' }, label),
-            h('div', { style: { fontSize: '1.6rem', fontFamily: 'var(--mono)', color: 'var(--ember)' } }, value),
+            h('div', { style: { fontSize: '1.35rem', fontFamily: 'var(--mono)', color: 'var(--ember)' } }, value),
             h('small', { class: 'muted' }, hint),
           ),
         ),
+      ),
+      h(
+        'p',
+        { class: 'muted' },
+        `Snittet är ${pct(summary.mean)}, men snittet är inte mitten: ungefär 37 av 100 crafts hamnar under det. Planera efter medianen.`,
       ),
       h('h3', { style: { marginTop: '16px' } }, 'Fördelning över alla körningar'),
       histogram(summary),
@@ -363,6 +503,7 @@ function resultPanel(state: State, summary: SimSummary): HTMLElement {
           )
         : null,
     ),
+    samplePanel(summary),
     section(
       'Per stat-rad',
       table(
@@ -393,26 +534,58 @@ function resultPanel(state: State, summary: SimSummary): HTMLElement {
   );
 }
 
-function comparePanel(state: State, cards: CardDef[]): HTMLElement {
-  const rows = STRATEGIES.map((strategy) => {
-    const summary = simulate(itemState(state), { ...simConfig(state, cards), strategy }, Math.min(state.runs, 3000), state.seed);
-    return { strategy, summary };
-  }).sort((a, b) => b.summary.mean - a.summary.mean);
+function comparePanel(state: State, cards: CardDef[], rerender: () => void): HTMLElement {
+  const runs = Math.min(state.runs, 3000);
+  const results = comparePaired(itemState(state), simConfig(state, cards), STRATEGIES, runs, state.seed).sort(
+    (a, b) => b.meanDiff - a.meanDiff,
+  );
+  const leader = results[0];
 
   return section(
     'Jämför spelstilar',
     table(
-      ['Spelstil', 'Snitt', 'Median', 'Perfekt', 'Förlorat', 'Echoes'],
-      rows.map(({ strategy, summary }) => [
-        h('span', null, strategy.name, strategy.id === state.strategyId ? h('span', { class: 'chip ember' }, 'vald') : null),
-        h('span', { class: 'num mono' }, pct(summary.mean)),
-        h('span', { class: 'num mono' }, pct(summary.median)),
-        h('span', { class: 'num mono' }, pct(summary.perfectRate, 2)),
-        h('span', { class: 'num mono' }, pct(summary.destroyRate, 2)),
-        h('span', { class: 'num mono' }, num(summary.meanEchoes, 2)),
+      ['Spelstil', 'Median', 'Vinner mot bäst', 'Skillnad', 'Perfekt', 'Förlorat', ''],
+      results.map((row) => [
+        h(
+          'span',
+          null,
+          row.strategy.name,
+          row.strategy.id === state.strategyId ? h('span', { class: 'chip ember' }, 'vald') : null,
+          row === leader ? h('span', { class: 'chip good' }, 'bäst') : null,
+        ),
+        h('span', { class: 'num mono' }, pct(row.summary.median)),
+        row === leader
+          ? h('span', { class: 'muted' }, 'referens')
+          : row.tie
+            ? h('span', { class: 'chip' }, 'för nära för att avgöra')
+            : h('span', { class: 'num mono' }, `${Math.round(row.winRate * 100)} av 100`),
+        row === leader
+          ? h('span', { class: 'muted' }, '-')
+          : h('span', { class: 'num mono' }, `${row.meanDiff >= 0 ? '+' : ''}${pct(row.meanDiff)} ± ${pct(row.ci95)}`),
+        h('span', { class: 'num mono' }, pct(row.summary.perfectRate, 2)),
+        h('span', { class: 'num mono' }, pct(row.summary.destroyRate + row.summary.scrapRate, 2)),
+        row.strategy.id === state.strategyId
+          ? null
+          : h(
+              'button',
+              {
+                class: 'tiny',
+                onclick: () => {
+                  state.strategyId = row.strategy.id;
+                  save(state);
+                  rerender();
+                },
+              },
+              'använd',
+            ),
       ]),
     ),
-    h('p', { class: 'muted' }, 'Samma seed och samma item för alla rader, så skillnaden är spelstilen och inte turen.'),
+    h(
+      'p',
+      { class: 'muted' },
+      `Varje spelstil körs på exakt samma ${runs} crafts, så jämförelsen är parvis och turen räknas bort. `,
+      '"Vinner mot bäst" är hur ofta stilen slår den bästa på samma craft. Krockar felmarginalen med noll står det att det är för nära för att avgöra, istället för att låtsas ranka brus.',
+    ),
   );
 }
 
@@ -515,8 +688,8 @@ export async function render(_params: Record<string, string>, query?: URLSearchP
           ),
         ),
       ),
-      resultPanel(state, summary),
-      extra === 'compare' ? comparePanel(state, cards) : null,
+      resultPanel(state, summary, rerender),
+      extra === 'compare' ? comparePanel(state, cards, rerender) : null,
       extra === 'curve' ? turnCurve(state, cards) : null,
       h(
         'footer',
